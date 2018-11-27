@@ -1,6 +1,15 @@
 version: '3'
+
 services:
   app:
-    build: .
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - '.:/go/src/app'
+      - '/go/src/app/vendor'
+    environment:
+      PORT: 9800
     ports:
-      - "8080:8080"
+      - '9800:9800'
+    command: /go/bin/myapp
