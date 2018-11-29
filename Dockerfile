@@ -9,6 +9,9 @@ RUN apk add --no-cache git \
   && go get -u github.com/golang/dep/cmd/dep \
   && dep ensure
 
+# goデバッグツール
+RUN go get -u github.com/derekparker/delve/cmd/dlv
+
 RUN go build -o /go/bin/myapp .
 
 # docker run -v $PWD:/go/src/app -it golang:1.9.2-alpine /bin/sh
