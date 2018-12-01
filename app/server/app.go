@@ -9,11 +9,7 @@ import (
 // Start 起動
 func Start() {
 	r := gin.Default()
-	r.GET("/hello", func(ctx *gin.Context) {
-		ctx.JSON(200, gin.H{
-			"message": "Hello World.",
-		})
-	})
+	RouteV1(r)
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
 		port = "8080"
