@@ -7,17 +7,10 @@ WORKDIR /go/src/app
 
 RUN apk add --no-cache git \
   && go get -u github.com/golang/dep/cmd/dep \
-  && dep ensure
-
-# goデバッグツール
-RUN go get -u github.com/derekparker/delve/cmd/dlv
-
-RUN go build -o /go/bin/myapp .
-
-# docker run -v $PWD:/go/src/app -it golang:1.9.2-alpine /bin/sh
-# apk add --no-cache git
-# go get -u github.com/golang/dep/cmd/dep
-# cd /go/src/app
-# dep init
-# exit
-# docker-compose up -d --build
+  # ホットリロード
+  && go get -u github.com/codegangsta/gin \
+  # goデバッグツール
+  && go get -u github.com/derekparker/delve/cmd/dlv \
+# depが初期化されてなければ初期化
+RUN [[ -e Gopkg.toml ]] || cd /go/src/app && dep init
+RUN dep ensure
