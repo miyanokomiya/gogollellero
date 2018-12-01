@@ -6,8 +6,8 @@ services:
       context: ./
       dockerfile: Dockerfile
     volumes:
-      - '.:/go/src/app'
-      - '/go/src/app/vendor'
+      - '.:/go/src/github.com/miyanokomiya/gogollellero'
+      - '/go/src/github.com/miyanokomiya/gogollellero/vendor'
     environment:
       PORT: 8080
     ports:

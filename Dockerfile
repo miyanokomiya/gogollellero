@@ -2,8 +2,8 @@ FROM golang:1.10.3-alpine
 
 ENV GOBIN /go/bin
 
-ADD . /go/src/app
-WORKDIR /go/src/app
+WORKDIR /go/src/github.com/miyanokomiya/gogollellero
+ADD . /go/src/github.com/miyanokomiya/gogollellero
 
 RUN apk add --no-cache git \
   && go get -u github.com/golang/dep/cmd/dep \
