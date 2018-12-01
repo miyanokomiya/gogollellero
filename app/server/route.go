@@ -10,6 +10,6 @@ func RouteV1(app *gin.Engine) {
 	helloHandler := handlers.NewHelloHandler()
 	apiGroup := app.Group("api/v1")
 	{
-		apiGroup.GET("/user/:name", helloHandler.GetName)
+		apiGroup.GET("/user/:name", helloHandler.Show)
 	}
 }

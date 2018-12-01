@@ -9,7 +9,7 @@ import (
 
 // HelloHandlerInterface インタフェース
 type HelloHandlerInterface interface {
-	GetName(c *gin.Context)
+	Show(c *gin.Context)
 }
 
 // NewHelloHandler 生成
@@ -20,7 +20,7 @@ func NewHelloHandler() HelloHandlerInterface {
 type helloHandler struct {
 }
 
-func (h *helloHandler) GetName(ctx *gin.Context) {
+func (h *helloHandler) Show(ctx *gin.Context) {
 	name := ctx.Param("name")
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": fmt.Sprintf("Hello %s", name),
