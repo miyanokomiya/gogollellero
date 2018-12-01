@@ -11,6 +11,4 @@ RUN apk add --no-cache git \
   && go get -u github.com/codegangsta/gin \
   # goデバッグツール
   && go get -u github.com/derekparker/delve/cmd/dlv \
-# depが初期化されてなければ初期化
-RUN [[ -e Gopkg.toml ]] || cd /go/src/app && dep init
-RUN dep ensure
+  && dep ensure
