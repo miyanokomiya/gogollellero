@@ -7,9 +7,27 @@ services:
       dockerfile: Dockerfile
     volumes:
       - '.:/go/src/github.com/miyanokomiya/gogollellero'
-      - '/go/src/github.com/miyanokomiya/gogollellero/vendor'
+      - 'vendor:/go/src/github.com/miyanokomiya/gogollellero/vendor'
     environment:
       PORT: 8080
     ports:
       - '8080:8080'
     command: gin -p 8080
+    container_name: gogollellero_web
+    links:
+      - db:gogollellero_db
+  db:
+    image: mysql:5.7
+    volumes:
+      - './.db:/var/lib/mysql'
+    environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_USER: miyanokomiya
+        MYSQL_PASSWORD: miyanokomiya
+        MYSQL_DATABASE: gogollellero
+    ports:
+      - '3306:3306'
+    container_name: gogollellero_db
+volumes:
+  vendor:
+    driver: 'local'
