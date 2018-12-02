@@ -7,18 +7,25 @@ type User struct {
 }
 
 // Create 作成
-func Create(user *User) *User {
+func (user *User) Create() {
 	db := gormConnect()
 	db.Create(user)
-	created := User{}
-	db.First(&created, "Name = ?", user.Name)
-	return &created
+}
+
+// Read 読込
+func (user *User) Read() {
+	db := gormConnect()
+	db.First(user)
+}
+
+// Update 更新
+func (user *User) Update() {
+	db := gormConnect()
+	db.Save(user)
 }
 
 // Delete 削除
-func Delete(id uint) {
+func (user *User) Delete() {
 	db := gormConnect()
-	user := User{}
-	user.ID = id
-	db.Delete(&user)
+	db.Delete(user)
 }

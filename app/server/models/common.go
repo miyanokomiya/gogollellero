@@ -10,11 +10,11 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-var db *gorm.DB
+var config string
 
-func gormConnect() *gorm.DB {
-	if db != nil {
-		return db
+func readConfig() string {
+	if config != "" {
+		return config
 	}
 	yml, err := ioutil.ReadFile("../../../configs/db.yml")
 	if err != nil {
@@ -24,7 +24,12 @@ func gormConnect() *gorm.DB {
 	_ = yaml.Unmarshal([]byte(yml), &t)
 	conn := t[os.Getenv("GO_ENV")].(map[interface{}]interface{})
 	protocol := t["protocol"].(string)
-	db, err = gorm.Open("mysql", conn["user"].(string)+":"+conn["password"].(string)+"@"+protocol+"/"+conn["db"].(string)+"?charset=utf8&parseTime=True")
+	config = conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"
+	return config
+}
+
+func gormConnect() *gorm.DB {
+	db, err := gorm.Open("mysql", readConfig())
 	if err != nil {
 		panic(err)
 	}
