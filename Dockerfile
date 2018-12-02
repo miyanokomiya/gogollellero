@@ -2,8 +2,9 @@ FROM golang:1.10.3-alpine
 
 ENV GOBIN /go/bin
 
-WORKDIR /go/src/github.com/miyanokomiya/gogollellero
 ADD . /go/src/github.com/miyanokomiya/gogollellero
+WORKDIR /go/src/github.com/miyanokomiya/gogollellero
+
 # gooseのコンパイルに必要
 RUN apk add gcc g++
 RUN apk add bash
@@ -14,5 +15,4 @@ RUN apk add --no-cache git \
   # goデバッグツール
   && go get -u github.com/derekparker/delve/cmd/dlv \
   # migrationツール
-  && go get -u bitbucket.org/liamstask/goose/cmd/goose \
-  && dep ensure
+  && go get -u bitbucket.org/liamstask/goose/cmd/goose

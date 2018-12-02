@@ -7,15 +7,15 @@ services:
       dockerfile: Dockerfile
     volumes:
       - '.:/go/src/github.com/miyanokomiya/gogollellero'
-      - 'vendor:/go/src/github.com/miyanokomiya/gogollellero/vendor'
     environment:
       PORT: 8080
     ports:
       - '8080:8080'
-    command: gin -p 8080
+    command: bash -c "dep ensure && gin -p 8080"
     container_name: gogollellero_web
     links:
       - db:gogollellero_db
+    tty: true
   db:
     image: mysql:5.7
     volumes:
@@ -28,6 +28,3 @@ services:
     ports:
       - '3306:3306'
     container_name: gogollellero_db
-volumes:
-  vendor:
-    driver: 'local'
