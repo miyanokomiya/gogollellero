@@ -1,3 +1,6 @@
 development:
   driver: mysql
   open: miyanokomiya:miyanokomiya@tcp(gogollellero_db:3306)/gogollellero
+test:
+  driver: mysql
+  open: miyanokomiya:miyanokomiya@tcp(gogollellero_db:3306)/gogollellero_test

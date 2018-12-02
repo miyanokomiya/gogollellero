@@ -11,7 +11,7 @@ services:
       PORT: 8080
     ports:
       - '8080:8080'
-    command: bash -c "dep ensure && gin -p 8080"
+    command: bash -c "dep ensure && GO_ENV=development gin -p 8080"
     container_name: gogollellero_web
     links:
       - db:gogollellero_db
@@ -20,6 +20,7 @@ services:
     image: mysql:5.7
     volumes:
       - './.db:/var/lib/mysql'
+      - ./db/init:/docker-entrypoint-initdb.d
     environment:
         MYSQL_ROOT_PASSWORD: root
         MYSQL_USER: miyanokomiya
