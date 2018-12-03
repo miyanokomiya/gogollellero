@@ -5,11 +5,11 @@ import (
 )
 
 func TestCreate(t *testing.T) {
-	db := gormConnect()
+	GormOpen()
 	// 作成
 	user := User{Name: "test_abcd"}
 	user.Create()
-	defer db.Delete(&user)
+	defer DB.Delete(&user)
 	if user.Name != "test_abcd" {
 		t.Fatal("failed test", user)
 	}
@@ -19,11 +19,11 @@ func TestCreate(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	db := gormConnect()
+	GormOpen()
 	// 作成
 	user := User{Name: "test_abcd"}
-	db.Create(&user)
-	defer db.Delete(&user)
+	DB.Create(&user)
+	defer DB.Delete(&user)
 	read := User{}
 	read.ID = user.ID
 	read.Read()
@@ -33,13 +33,13 @@ func TestRead(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	db := gormConnect()
+	GormOpen()
 	// 作成
 	user := User{Name: "test_abcd"}
-	db.Create(&user)
-	defer db.Delete(&user)
+	DB.Create(&user)
+	defer DB.Delete(&user)
 	created := User{}
-	db.First(&created, "Name = ?", user.Name)
+	DB.First(&created, "Name = ?", user.Name)
 
 	// 更新
 	update := User{}
@@ -52,13 +52,13 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestUpdate2(t *testing.T) {
-	db := gormConnect()
+	GormOpen()
 	// 作成
 	user := User{Name: "test_abcd"}
-	db.Create(&user)
-	defer db.Delete(&user)
+	DB.Create(&user)
+	defer DB.Delete(&user)
 	created := User{}
-	db.First(&created, "Name = ?", user.Name)
+	DB.First(&created, "Name = ?", user.Name)
 
 	// 更新
 	created.Update()
@@ -68,16 +68,16 @@ func TestUpdate2(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	db := gormConnect()
+	GormOpen()
 	// 作成
 	user := User{Name: "test_abcd"}
-	db.Create(&user)
-	defer db.Delete(&user)
+	DB.Create(&user)
+	defer DB.Delete(&user)
 
 	// 削除
 	user.Delete()
 	deleted := User{}
-	db.First(&deleted, user.ID)
+	DB.First(&deleted, user.ID)
 	if deleted.ID != 0 {
 		t.Fatal("failed delete", deleted)
 	}

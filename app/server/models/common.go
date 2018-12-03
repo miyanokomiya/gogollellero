@@ -10,12 +10,10 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-var config string
+// DB DBインスタンス
+var DB *gorm.DB
 
 func readConfig() string {
-	if config != "" {
-		return config
-	}
 	yml, err := ioutil.ReadFile("../../../configs/db.yml")
 	if err != nil {
 		panic(err)
@@ -24,16 +22,27 @@ func readConfig() string {
 	_ = yaml.Unmarshal([]byte(yml), &t)
 	conn := t[os.Getenv("GO_ENV")].(map[interface{}]interface{})
 	protocol := t["protocol"].(string)
-	config = conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"
-	return config
+	return conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"
 }
 
-func gormConnect() *gorm.DB {
-	db, err := gorm.Open("mysql", readConfig())
+// GormOpen 接続
+func GormOpen() {
+	if DB != nil {
+		return
+	}
+	var err error
+	DB, err = gorm.Open("mysql", readConfig())
 	if err != nil {
 		panic(err)
 	}
-	return db
+}
+
+// GormClose 切断
+func GormClose() {
+	if DB != nil {
+		DB.Close()
+	}
+	DB = nil
 }
 
 // Model 基底モデル
