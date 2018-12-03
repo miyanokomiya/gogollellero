@@ -82,3 +82,45 @@ func TestDelete(t *testing.T) {
 		t.Fatal("failed delete", deleted)
 	}
 }
+
+func TestIndex(t *testing.T) {
+	GormOpen()
+	user1 := User{Name: "user1"}
+	DB.Create(&user1)
+	defer DB.Delete(&user1)
+	user2 := User{Name: "user2"}
+	DB.Create(&user2)
+	defer DB.Delete(&user2)
+	user3 := User{Name: "user3"}
+	DB.Create(&user3)
+	defer DB.Delete(&user3)
+
+	users := Users{}
+	users.Index()
+	if len(users) != 3 {
+		t.Fatal("failed delete", len(users))
+	}
+	if users[0].Name != "user1" {
+		t.Fatal("failed delete", users[0])
+	}
+}
+
+func TestBatchDelete(t *testing.T) {
+	GormOpen()
+	user1 := User{Name: "user1"}
+	DB.Create(&user1)
+	defer DB.Delete(&user1)
+	user2 := User{Name: "user2"}
+	DB.Create(&user2)
+	defer DB.Delete(&user2)
+	user3 := User{Name: "user3"}
+	DB.Create(&user3)
+	defer DB.Delete(&user3)
+
+	BatchDelete([]uint{user1.ID, user2.ID, user3.ID})
+	users := Users{}
+	users.Index()
+	if len(users) != 0 {
+		t.Fatal("failed delete", len(users))
+	}
+}

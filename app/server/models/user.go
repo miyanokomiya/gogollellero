@@ -29,6 +29,12 @@ func (user *User) Delete() error {
 	return DB.Delete(user).Error
 }
 
-func (users *Users) Read() error {
+// Index 一覧
+func (users *Users) Index() error {
 	return DB.Order("id asc").Find(users).Error
+}
+
+// BatchDelete 一覧削除
+func BatchDelete(ids []uint) error {
+	return DB.Where(ids).Delete(User{}).Error
 }
