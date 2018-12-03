@@ -51,3 +51,23 @@ type Model struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+// Pagination ページネーション情報
+type Pagination struct {
+	Page    uint
+	Limit   uint
+	OrderBy string
+}
+
+func paginate(db *gorm.DB, pagination *Pagination) *gorm.DB {
+	if pagination == nil {
+		return db
+	}
+	if pagination.OrderBy != "" {
+		db = db.Order(pagination.OrderBy)
+	}
+	if pagination.Page > 0 && pagination.Limit > 1 {
+		db = db.Offset(pagination.Limit * (pagination.Page - 1)).Limit(pagination.Limit)
+	}
+	return db
+}

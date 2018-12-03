@@ -30,8 +30,8 @@ func (user *User) Delete() error {
 }
 
 // Index 一覧
-func (users *Users) Index() error {
-	return DB.Order("id asc").Find(users).Error
+func (users *Users) Index(pagination *Pagination) error {
+	return paginate(DB, pagination).Find(users).Error
 }
 
 // BatchDelete 一覧削除
