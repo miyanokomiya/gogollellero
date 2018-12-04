@@ -1,25 +1,40 @@
 package models
 
 import (
-	"io/ioutil"
+	"bytes"
+	"io"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" // mysql用のimport
+	"github.com/miyanokomiya/gogollellero/app/server/assets"
 	yaml "gopkg.in/yaml.v2"
 )
+
+func parseYml(file http.File) (map[interface{}]interface{}, error) {
+	by := new(bytes.Buffer)
+	io.Copy(by, file)
+	buf := by.Bytes()
+	t := make(map[interface{}]interface{})
+	err := yaml.Unmarshal(buf, &t)
+	return t, err
+}
 
 // DB DBインスタンス
 var DB *gorm.DB
 
 func readConfig() string {
-	yml, err := ioutil.ReadFile("../../../configs/db.yml")
+	file, err := assets.Configs.Open("/configs/db.yml")
 	if err != nil {
 		panic(err)
 	}
-	t := make(map[interface{}]interface{})
-	_ = yaml.Unmarshal([]byte(yml), &t)
+	defer file.Close()
+	t, err := parseYml(file)
+	if err != nil {
+		panic(err)
+	}
 	conn := t[os.Getenv("GO_ENV")].(map[interface{}]interface{})
 	protocol := t["protocol"].(string)
 	return conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"

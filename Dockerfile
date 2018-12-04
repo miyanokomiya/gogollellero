@@ -15,4 +15,6 @@ RUN apk add --no-cache git \
   # goデバッグツール
   && go get -u github.com/derekparker/delve/cmd/dlv \
   # migrationツール
-  && go get -u bitbucket.org/liamstask/goose/cmd/goose
+  && go get -u bitbucket.org/liamstask/goose/cmd/goose \
+  # アセットのバイナリ化ツール
+  && go get -u github.com/jessevdk/go-assets-builder

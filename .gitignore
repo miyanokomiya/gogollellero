@@ -1,5 +1,6 @@
+!.gitkeep
 vendor/
 .db/*
-!.gitkeep
+app/server/assets/*
 
 gin-bin
