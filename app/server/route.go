@@ -14,9 +14,12 @@ import (
 
 // RouteV1 API v1 ルーティング
 func RouteV1(app *gin.Engine) {
+	authHandler := handlers.NewAuthHandler()
 	usersHandler := handlers.NewUsersHandler()
 	apiGroup := app.Group("api/v1")
 	{
+		apiGroup.POST("/login", authHandler.Login)
+		apiGroup.DELETE("/logout", authHandler.Logout)
 		apiGroup.GET("/users/:name", usersHandler.Show)
 	}
 	private := app.Group("/private")

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/miyanokomiya/gogollellero/app/server"
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
@@ -8,5 +10,9 @@ import (
 func main() {
 	models.GormOpen()
 	defer models.GormClose()
-	server.Start()
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+	server.Create().Run(":" + port)
 }
