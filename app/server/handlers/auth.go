@@ -12,12 +12,13 @@ import (
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
 
+// AuthHandler 認証ハンドラ
 type AuthHandler interface {
 	Login(c *gin.Context)
 	Logout(c *gin.Context)
 }
 
-// NewUsersHandler 生成
+// NewAuthHandler 生成
 func NewAuthHandler() AuthHandler {
 	return &authHandler{}
 }
