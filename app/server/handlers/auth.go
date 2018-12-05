@@ -31,7 +31,6 @@ func (h *authHandler) Login(c *gin.Context) {
 
 	user := models.User{Name: username}
 	err := user.Read()
-	log.Println(user)
 	if err != nil {
 		log.Println(err)
 		respondFailedLogin(c)
