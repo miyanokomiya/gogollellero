@@ -2,23 +2,15 @@
 
 
 [[projects]]
-  digest = "1:db932d4696ed23e244a69a60d258a23816aceb012a95e4c3871c711d4fc120e7"
-  name = "github.com/boj/redistore"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "fc113767cd6b051980f260d6dbe84b2740c46ab0"
-  version = "v1.2"
-
-[[projects]]
-  digest = "1:0594af97b2f4cec6554086eeace6597e20a4b69466eb4ada25adf9f4300dddd2"
-  name = "github.com/garyburd/redigo"
+  branch = "master"
+  digest = "1:cd203a28422630fedc57966b90b6e39ff38b4c553bee2282c9032f41ba7a0e3e"
+  name = "github.com/gin-contrib/sessions"
   packages = [
-    "internal",
-    "redis",
+    ".",
+    "cookie",
   ]
   pruneopts = "UT"
-  revision = "a69d19351219b6dd56f274f96d85a7014a2ec34e"
-  version = "v1.6.0"
+  revision = "7687b645ca6b8b80eb1b45dc16bfb026e9c04c7d"
 
 [[projects]]
   branch = "master"
@@ -27,14 +19,6 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
-
-[[projects]]
-  branch = "master"
-  digest = "1:a9fc00ef112bb3d3f057c7f41c00e5a5dd56ce36381103d753938458b2356ca1"
-  name = "github.com/gin-gonic/contrib"
-  packages = ["sessions"]
-  pruneopts = "UT"
-  revision = "54170a7b0b4b2f9219c79599b1b03830a5a7d68d"
 
 [[projects]]
   digest = "1:d5083934eb25e45d17f72ffa86cae3814f4a9d6c073c4f16b64147169b245606"
@@ -172,7 +156,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/gin-gonic/contrib/sessions",
+    "github.com/gin-contrib/sessions",
+    "github.com/gin-contrib/sessions/cookie",
     "github.com/gin-gonic/gin",
     "github.com/jessevdk/go-assets",
     "github.com/jinzhu/gorm",
