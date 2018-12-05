@@ -17,12 +17,12 @@ func RouteV1(app *gin.Engine) {
 	usersHandler := handlers.NewUsersHandler()
 	apiGroup := app.Group("api/v1")
 	{
-		apiGroup.GET("/user/:name", usersHandler.Show)
+		apiGroup.GET("/users/:name", usersHandler.Show)
 	}
 	private := app.Group("/private")
 	private.Use(AuthRequired())
 	{
-		private.GET("/user/:name", private2)
+		private.GET("/users/:name", private2)
 	}
 }
 
