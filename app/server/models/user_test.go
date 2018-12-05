@@ -22,15 +22,30 @@ func TestCreate(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	GormOpen()
-	// 作成
 	user := User{Name: "test_abcd"}
 	DB.Create(&user)
+	user2 := User{Name: "test_dddd"}
+	DB.Create(&user2)
 	defer DB.Delete(&user)
+	defer DB.Delete(&user2)
+	// id検索
 	read := User{}
-	read.ID = user.ID
+	read.ID = user2.ID
 	read.Read()
-	if read.Name != "test_abcd" {
+	if read.Name != "test_dddd" {
 		t.Fatal("failed read", read)
+	}
+	// name検索
+	read2 := User{}
+	read2.Name = "test_dddd"
+	read2.Read()
+	if read2.Name != "test_dddd" {
+		t.Fatal("failed read", read2)
+	}
+	// 検索エラー
+	read3 := User{}
+	if read3.Read() == nil {
+		t.Fatal("invalid read")
 	}
 }
 
@@ -127,5 +142,13 @@ func TestSetPassword(t *testing.T) {
 	}
 	if !user.Authenticate("password") {
 		t.Fatal("failed set hashed password")
+	}
+}
+
+func TestSetPassword2(t *testing.T) {
+	user := User{}
+	err := user.SetPassword("")
+	if err == nil {
+		t.Fatal("empty password allowed")
 	}
 }

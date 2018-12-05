@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"log"
 
 	"golang.org/x/crypto/bcrypt"
@@ -23,7 +24,13 @@ func (user *User) Create() error {
 
 // Read 読込
 func (user *User) Read() error {
-	return DB.First(user).Error
+	if user.ID != 0 {
+		return DB.First(user).Error
+	} else if user.Name != "" {
+		return DB.First(user, "name = ?", user.Name).Error
+	} else {
+		return errors.New("no key to read")
+	}
 }
 
 // Update 更新
@@ -49,6 +56,9 @@ func BatchDelete(ids []uint) error {
 // Authenticate 認証
 func (user *User) Authenticate(password string) bool {
 	user.Read()
+	if user.Password == "" {
+		return false
+	}
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		log.Println("Failed to authenticate", err)
@@ -59,6 +69,9 @@ func (user *User) Authenticate(password string) bool {
 
 // SetPassword パスワードをハッシュ化してセット
 func (user *User) SetPassword(password string) error {
+	if password == "" {
+		return errors.New("empty password")
+	}
 	hash, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
 	if err != nil {
 		return err
