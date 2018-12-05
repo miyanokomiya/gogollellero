@@ -2,6 +2,8 @@ package models
 
 import (
 	"testing"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestCreate(t *testing.T) {
@@ -98,4 +100,32 @@ func TestBatchDelete(t *testing.T) {
 			t.Fatal("failed delete", len(users))
 		}
 	})
+}
+
+func TestAuthenticate(t *testing.T) {
+	hash, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	if err != nil {
+		t.Fatal("failed hash")
+	}
+	user := User{
+		Name:     "name",
+		Password: string(hash),
+	}
+	if !user.Authenticate("password") {
+		t.Fatal("failed auth when valid password")
+	}
+	if user.Authenticate("password1") {
+		t.Fatal("failed auth when invalid password")
+	}
+}
+
+func TestSetPassword(t *testing.T) {
+	user := User{}
+	user.SetPassword("password")
+	if user.Password == "password" {
+		t.Fatal("failed set hashed password")
+	}
+	if !user.Authenticate("password") {
+		t.Fatal("failed set hashed password")
+	}
 }

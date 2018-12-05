@@ -1,9 +1,16 @@
 package models
 
+import (
+	"log"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
 // User ユーザー
 type User struct {
 	Model
-	Name string `gorm:"size:255;unique_index"`
+	Name     string `gorm:"size:255;unique_index"`
+	Password string `gorm:"size:255"`
 }
 
 // Users ユーザー一覧
@@ -37,4 +44,25 @@ func (users *Users) Index(pagination *Pagination) error {
 // BatchDelete 一覧削除
 func BatchDelete(ids []uint) error {
 	return DB.Where(ids).Delete(User{}).Error
+}
+
+// Authenticate 認証
+func (user *User) Authenticate(password string) bool {
+	user.Read()
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		log.Println("Failed to authenticate", err)
+		return false
+	}
+	return true
+}
+
+// SetPassword パスワードをハッシュ化してセット
+func (user *User) SetPassword(password string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hash)
+	return nil
 }
