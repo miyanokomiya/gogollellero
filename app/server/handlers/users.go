@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
@@ -23,34 +22,65 @@ func NewUsersHandler() UsersHandler {
 
 type usersHandler struct{}
 
+// ShowParams Showパラメータ
+type ShowParams struct {
+	Name string `json:"name" binding:"required,gte=4,lte=64"`
+}
+
 // Show 詳細
 func (h *usersHandler) Show(c *gin.Context) {
-	name := c.Param("name")
-	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Hello %s", name),
-	})
+	params := ShowParams{}
+	if err := c.BindQuery(&params); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+	user := models.User{Name: params.Name}
+	if err := user.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_user",
+			Message: "not found user",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
+// CraeteJSON Createパラメータ
+type CraeteJSON struct {
+	Name     string `json:"name" binding:"required,gte=4,lte=64"`
+	Password string `json:"password" binding:"required,gte=8,lte=64"`
 }
 
 // Create 作成
 func (h *usersHandler) Create(c *gin.Context) {
-	name := c.PostForm("name")
-	password := c.PostForm("password")
-	user := models.User{Name: name}
-	err := user.SetPassword(password)
-	if err != nil {
+	json := CraeteJSON{}
+	if err := c.BindJSON(&json); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+
+	user := models.User{Name: json.Name}
+	if err := user.SetPassword(json.Password); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "empty_password",
 			Message: "empty password",
 		})
 		return
 	}
-	err = user.Create()
-	if err != nil {
+
+	if err := user.Create(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "validation_error",
 			Message: err.Error(),
 		})
 		return
 	}
+
 	c.JSON(http.StatusOK, &user)
 }

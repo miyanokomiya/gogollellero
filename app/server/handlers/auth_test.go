@@ -1,10 +1,10 @@
-package handlerstest
+package handlers_test
 
 import (
 	"net/http"
-	"net/url"
 	"testing"
 
+	"github.com/miyanokomiya/gogollellero/app/server/handlers"
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
 
@@ -16,10 +16,11 @@ func TestAuthHandlerLogin1(t *testing.T) {
 	user.Create()
 	defer user.Delete()
 
-	values := url.Values{}
-	values.Add("username", "username")
-	values.Add("password", "password")
-	rec := mockPost("/api/v1/login", values)
+	json := handlers.LoginJson{
+		UserName: user.Name,
+		Password: "password",
+	}
+	rec := mockPost("/api/v1/login", json)
 
 	if http.StatusOK != rec.Code {
 		t.Fatal("falied")
@@ -34,10 +35,11 @@ func TestAuthHandlerLogin2(t *testing.T) {
 	user.Create()
 	defer user.Delete()
 
-	values := url.Values{}
-	values.Add("username", "username")
-	values.Add("password", "invalid")
-	rec := mockPost("/api/v1/login", values)
+	json := handlers.LoginJson{
+		UserName: user.Name,
+		Password: "invalid",
+	}
+	rec := mockPost("/api/v1/login", json)
 
 	if http.StatusUnauthorized != rec.Code {
 		t.Fatal("falied")
@@ -52,10 +54,11 @@ func TestAuthHandlerLogin3(t *testing.T) {
 	user.Create()
 	defer user.Delete()
 
-	values := url.Values{}
-	values.Add("username", "unknown")
-	values.Add("password", "password")
-	rec := mockPost("/api/v1/login", values)
+	json := handlers.LoginJson{
+		UserName: "unknown",
+		Password: "password",
+	}
+	rec := mockPost("/api/v1/login", json)
 
 	if http.StatusUnauthorized != rec.Code {
 		t.Fatal("falied")

@@ -25,19 +25,29 @@ func NewAuthHandler() AuthHandler {
 
 type authHandler struct{}
 
+// LoginJson ログインJSON
+type LoginJson struct {
+	UserName string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 // Login ログイン
 func (h *authHandler) Login(c *gin.Context) {
-	username := c.PostForm("username")
-	password := c.PostForm("password")
-
-	user := models.User{Name: username}
-	err := user.Read()
-	if err != nil {
+	json := LoginJson{}
+	if err := c.BindJSON(&json); err != nil {
 		log.Println(err)
 		respondFailedLogin(c)
 		return
 	}
-	if !user.Authenticate(password) {
+
+	user := models.User{Name: json.UserName}
+	if err := user.Read(); err != nil {
+		log.Println(err)
+		respondFailedLogin(c)
+		return
+	}
+
+	if !user.Authenticate(json.Password) {
 		log.Println("Invalid password")
 		respondFailedLogin(c)
 		return
@@ -45,15 +55,14 @@ func (h *authHandler) Login(c *gin.Context) {
 
 	session := sessions.Default(c)
 	session.Set(constants.SessionUser, user.ID)
-	err = session.Save()
-	if err != nil {
+	if err := session.Save(); err != nil {
 		log.Println(err)
 		respondFailedLogin(c)
 		return
 	}
 
 	log.Println("Success login", user.ID)
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully authenticated user"})
+	c.JSON(http.StatusOK, user)
 }
 
 // Logout ログアウト

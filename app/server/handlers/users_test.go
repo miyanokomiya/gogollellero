@@ -1,14 +1,15 @@
-package handlerstest
+package handlers_test
 
 import (
 	"net/http"
 	"net/url"
 	"testing"
 
+	"github.com/miyanokomiya/gogollellero/app/server/handlers"
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
 
-func TestUsersHandlerCreate1(t *testing.T) {
+func TestUsersHandlerCreateSuccess(t *testing.T) {
 	models.GormOpen()
 	defer models.GormClose()
 	user := models.User{Name: "username"}
@@ -17,17 +18,18 @@ func TestUsersHandlerCreate1(t *testing.T) {
 		user.Delete()
 	}()
 
-	values := url.Values{}
-	values.Add("name", user.Name)
-	values.Add("password", "password")
-	rec := mockPost("/api/v1/users", values)
+	json := handlers.CraeteJSON{
+		Name:     user.Name,
+		Password: "password",
+	}
+	rec := mockPost("/api/v1/users", json)
 
 	if http.StatusOK != rec.Code {
 		t.Fatal("falied", rec)
 	}
 }
 
-func TestUsersHandlerCreate2(t *testing.T) {
+func TestUsersHandlerCreateFailed(t *testing.T) {
 	models.GormOpen()
 	defer models.GormClose()
 	user := models.User{Name: "username"}
@@ -38,7 +40,11 @@ func TestUsersHandlerCreate2(t *testing.T) {
 
 	values := url.Values{}
 	values.Add("password", "password")
-	rec := mockPost("/api/v1/users", values)
+
+	json := handlers.CraeteJSON{
+		Password: "password",
+	}
+	rec := mockPost("/api/v1/users", json)
 
 	if http.StatusOK == rec.Code {
 		t.Fatal("falied", rec)

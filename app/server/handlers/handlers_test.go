@@ -1,6 +1,7 @@
-package handlerstest
+package handlers_test
 
 import (
+	"encoding/json"
 	"net/http/httptest"
 	"net/url"
 	"strings"
@@ -8,13 +9,14 @@ import (
 	"github.com/miyanokomiya/gogollellero/app/server"
 )
 
-func mockPost(uri string, params url.Values) *httptest.ResponseRecorder {
+func mockPost(uri string, params interface{}) *httptest.ResponseRecorder {
 	var reader *strings.Reader
 	if params != nil {
-		reader = strings.NewReader(params.Encode())
+		json, _ := json.Marshal(params)
+		reader = strings.NewReader(string(json))
 	}
 	req := httptest.NewRequest("POST", uri, reader)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Add("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
 	router := server.Create()
 	router.ServeHTTP(rec, req)
