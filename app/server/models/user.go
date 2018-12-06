@@ -10,12 +10,17 @@ import (
 // User ユーザー
 type User struct {
 	Model
-	Name     string `gorm:"size:255;unique_index"`
-	Password string `gorm:"size:255"`
+	Name     string `binding:"required,gte=4,lte=64"`
+	Password string `binding:"required"` // ハッシュ化済文字列
 }
 
 // Users ユーザー一覧
 type Users []User
+
+// BeforeSave バリデーション
+func (user *User) BeforeSave() error {
+	return GetValidator().Struct(user)
+}
 
 // Create 作成
 func (user *User) Create() error {

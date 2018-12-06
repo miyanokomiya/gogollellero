@@ -27,7 +27,7 @@ func userListWrapper(count int, fn func(Users)) {
 	GormOpen()
 	var users Users
 	for i := 0; i < count; i++ {
-		user := User{Name: fmt.Sprintf("user_%d", i)}
+		user := User{Name: fmt.Sprintf("user_%d", i), Password: "abcdabcd"}
 		DB.Create(&user)
 		defer DB.Delete(&user)
 		users = append(users, user)

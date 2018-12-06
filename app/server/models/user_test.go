@@ -8,9 +8,11 @@ import (
 
 func TestCreate(t *testing.T) {
 	GormOpen()
-	// 作成
-	user := User{Name: "test_abcd"}
-	user.Create()
+	user := User{Name: "test_abcd", Password: "abcdabcd"}
+	err := user.Create()
+	if err != nil {
+		t.Fatal("failed test", err)
+	}
 	defer DB.Delete(&user)
 	if user.Name != "test_abcd" {
 		t.Fatal("failed test", user)
@@ -22,9 +24,9 @@ func TestCreate(t *testing.T) {
 
 func TestRead(t *testing.T) {
 	GormOpen()
-	user := User{Name: "test_abcd"}
+	user := User{Name: "test_abcd", Password: "abcdabcd"}
 	DB.Create(&user)
-	user2 := User{Name: "test_dddd"}
+	user2 := User{Name: "test_dddd", Password: "abcdabcd"}
 	DB.Create(&user2)
 	defer DB.Delete(&user)
 	defer DB.Delete(&user2)
@@ -52,7 +54,7 @@ func TestRead(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	GormOpen()
 	// 作成
-	user := User{Name: "test_abcd"}
+	user := User{Name: "test_abcd", Password: "abcdabcd"}
 	DB.Create(&user)
 	defer DB.Delete(&user)
 	created := User{}
@@ -71,7 +73,7 @@ func TestUpdate(t *testing.T) {
 func TestUpdate2(t *testing.T) {
 	GormOpen()
 	// 作成
-	user := User{Name: "test_abcd"}
+	user := User{Name: "test_abcd", Password: "abcdabcd"}
 	DB.Create(&user)
 	defer DB.Delete(&user)
 	created := User{}

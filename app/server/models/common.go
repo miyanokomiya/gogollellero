@@ -10,34 +10,21 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql" // mysql用のimport
 	"github.com/miyanokomiya/gogollellero/app/server/assets"
+	v "gopkg.in/go-playground/validator.v8"
 	yaml "gopkg.in/yaml.v2"
 )
 
-func parseYml(file http.File) (map[interface{}]interface{}, error) {
-	by := new(bytes.Buffer)
-	io.Copy(by, file)
-	buf := by.Bytes()
-	t := make(map[interface{}]interface{})
-	err := yaml.Unmarshal(buf, &t)
-	return t, err
-}
-
 // DB DBインスタンス
 var DB *gorm.DB
+var validator *v.Validate
 
-func readConfig() string {
-	file, err := assets.Configs.Open("/configs/db.yml")
-	if err != nil {
-		panic(err)
+// GetValidator バリデーションインスタンス取得
+func GetValidator() *v.Validate {
+	if validator != nil {
+		return validator
 	}
-	defer file.Close()
-	t, err := parseYml(file)
-	if err != nil {
-		panic(err)
-	}
-	conn := t[os.Getenv("GO_ENV")].(map[interface{}]interface{})
-	protocol := t["protocol"].(string)
-	return conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"
+	validator = v.New(&v.Config{TagName: "binding"})
+	return validator
 }
 
 // GormOpen 接続
@@ -85,4 +72,28 @@ func paginate(db *gorm.DB, pagination *Pagination) *gorm.DB {
 		db = db.Offset(pagination.Limit * (pagination.Page - 1)).Limit(pagination.Limit)
 	}
 	return db
+}
+
+func parseYml(file http.File) (map[interface{}]interface{}, error) {
+	by := new(bytes.Buffer)
+	io.Copy(by, file)
+	buf := by.Bytes()
+	t := make(map[interface{}]interface{})
+	err := yaml.Unmarshal(buf, &t)
+	return t, err
+}
+
+func readConfig() string {
+	file, err := assets.Configs.Open("/configs/db.yml")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	t, err := parseYml(file)
+	if err != nil {
+		panic(err)
+	}
+	conn := t[os.Getenv("GO_ENV")].(map[interface{}]interface{})
+	protocol := t["protocol"].(string)
+	return conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"
 }

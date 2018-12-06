@@ -21,6 +21,7 @@ func RouteV1(app *gin.Engine) {
 		apiGroup.POST("/login", authHandler.Login)
 		apiGroup.DELETE("/logout", authHandler.Logout)
 		apiGroup.GET("/users/:name", usersHandler.Show)
+		apiGroup.POST("/users", usersHandler.Create)
 	}
 	private := app.Group("/private")
 	private.Use(AuthRequired())
