@@ -110,7 +110,7 @@ func TestIndex(t *testing.T) {
 
 func TestBatchDelete(t *testing.T) {
 	userListWrapper(3, func(created Users) {
-		BatchDelete([]uint{created[0].ID, created[1].ID, created[2].ID})
+		BatchDelete([]int{created[0].ID, created[1].ID, created[2].ID})
 		users := Users{}
 		users.Index(nil)
 		if len(users) != 0 {

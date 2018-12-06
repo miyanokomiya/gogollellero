@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
 
@@ -13,6 +14,7 @@ import (
 type UsersHandler interface {
 	Show(c *gin.Context)
 	Create(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 // NewUsersHandler 生成
@@ -22,22 +24,18 @@ func NewUsersHandler() UsersHandler {
 
 type usersHandler struct{}
 
-// ShowParams Showパラメータ
-type ShowParams struct {
-	Name string `json:"name" binding:"required,gte=4,lte=64"`
-}
-
 // Show 詳細
 func (h *usersHandler) Show(c *gin.Context) {
-	params := ShowParams{}
-	if err := c.BindQuery(&params); err != nil {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "invalid_params",
 			Message: "invalid params",
 		})
 		return
 	}
-	user := models.User{Name: params.Name}
+	user := models.User{}
+	user.ID = id
 	if err := user.Read(); err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
 			Key:     "not_found_user",
@@ -48,15 +46,15 @@ func (h *usersHandler) Show(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-// CraeteJSON Createパラメータ
-type CraeteJSON struct {
+// UserCraeteJSON Createパラメータ
+type UserCraeteJSON struct {
 	Name     string `json:"name" binding:"required,gte=4,lte=64"`
 	Password string `json:"password" binding:"required,gte=8,lte=64"`
 }
 
 // Create 作成
 func (h *usersHandler) Create(c *gin.Context) {
-	json := CraeteJSON{}
+	json := UserCraeteJSON{}
 	if err := c.BindJSON(&json); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "invalid_params",
@@ -83,4 +81,33 @@ func (h *usersHandler) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &user)
+}
+
+// Delete 削除
+func (h *usersHandler) Delete(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+	user := models.User{}
+	user.ID = id
+	if err := user.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_user",
+			Message: "not found user",
+		})
+		return
+	}
+	if err := user.Delete(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
+			Key:     "failed_delete_user",
+			Message: "failed delete user",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, nil)
 }

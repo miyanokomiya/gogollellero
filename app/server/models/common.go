@@ -49,15 +49,15 @@ func GormClose() {
 
 // Model 基底モデル
 type Model struct {
-	ID        uint `gorm:"primary_key"`
+	ID        int `gorm:"primary_key"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 // Pagination ページネーション情報
 type Pagination struct {
-	Page    uint
-	Limit   uint
+	Page    int
+	Limit   int
 	OrderBy string
 }
 

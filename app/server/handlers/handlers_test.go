@@ -32,7 +32,7 @@ func mockDelete(uri string, params url.Values) *httptest.ResponseRecorder {
 }
 
 func mockQuery(method string, uri string, params url.Values) *httptest.ResponseRecorder {
-	req := httptest.NewRequest(method, uri, strings.NewReader(params.Encode()))
+	req := httptest.NewRequest(method, uri, nil)
 	if params != nil {
 		req.URL.RawQuery = params.Encode()
 	}

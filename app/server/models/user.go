@@ -54,7 +54,7 @@ func (users *Users) Index(pagination *Pagination) error {
 }
 
 // BatchDelete 一覧削除
-func BatchDelete(ids []uint) error {
+func BatchDelete(ids []int) error {
 	return DB.Where(ids).Delete(User{}).Error
 }
 
