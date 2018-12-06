@@ -1,8 +1,10 @@
 package server
 
 import (
+	"log"
 	"net/http"
 
+	"github.com/miyanokomiya/gogollellero/app/server/models"
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
 
 	"github.com/miyanokomiya/gogollellero/app/server/constants"
@@ -39,16 +41,22 @@ func private2(c *gin.Context) {
 func AuthRequired() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
-		user := session.Get(constants.SessionUser)
-		if user == nil {
-			// You'd normally redirect to login page
-			c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
-				Key:     "invalid_auth",
-				Message: "invalud auth",
-			})
-		} else {
-			// Continue down the chain to handler etc
-			c.Next()
+		v := session.Get(constants.SessionUser)
+		if v != nil {
+			if id, ok := v.(int); ok {
+				user := models.User{}
+				user.ID = int(id)
+				err := user.Read()
+				if err == nil {
+					c.Next()
+					return
+				}
+				log.Println(err)
+			}
 		}
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_auth",
+			Message: "invalud auth",
+		})
 	}
 }

@@ -3,6 +3,7 @@ package handlers_test
 import (
 	"fmt"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
 
@@ -10,18 +11,21 @@ import (
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
 
+var usersHandlers = handlers.NewUsersHandler()
+
 func TestUsersHandlerShowSuccess(t *testing.T) {
-	models.GormOpen()
-	defer models.GormClose()
-	user := models.User{Name: "username", Password: "1234567890"}
-	user.Create()
-	defer user.Delete()
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username", Password: "1234567890"}
+		user.Create()
+		defer user.Delete()
+		h.eng.GET("/users/:id", usersHandlers.Show)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/users/%d", user.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
 
-	rec := mockGet(fmt.Sprintf("/api/v1/users/%d", user.ID), nil)
-
-	if http.StatusOK != rec.Code {
-		t.Fatal("falied", rec)
-	}
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
 }
 
 func TestUsersHandlerShowFailed(t *testing.T) {
