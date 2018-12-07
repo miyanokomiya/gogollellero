@@ -18,7 +18,7 @@ func TestAuthHandlerLogin1(t *testing.T) {
 		user.Create()
 		defer user.Delete()
 		h.eng.POST("/login", authHandlers.Login)
-		req := httptest.NewRequest("POST", "/login", createJsonParams(handlers.LoginJson{
+		req := httptest.NewRequest("POST", "/login", createJsonParams(handlers.LoginJSON{
 			UserName: user.Name,
 			Password: "password",
 		}))
@@ -37,7 +37,7 @@ func TestAuthHandlerLogin2(t *testing.T) {
 		user.Create()
 		defer user.Delete()
 		h.eng.POST("/login", authHandlers.Login)
-		req := httptest.NewRequest("POST", "/login", createJsonParams(handlers.LoginJson{
+		req := httptest.NewRequest("POST", "/login", createJsonParams(handlers.LoginJSON{
 			UserName: user.Name,
 			Password: "invalid",
 		}))
@@ -56,7 +56,7 @@ func TestAuthHandlerLogin3(t *testing.T) {
 		user.Create()
 		defer user.Delete()
 		h.eng.POST("/login", authHandlers.Login)
-		req := httptest.NewRequest("POST", "/login", createJsonParams(handlers.LoginJson{
+		req := httptest.NewRequest("POST", "/login", createJsonParams(handlers.LoginJSON{
 			UserName: "unkown",
 			Password: "password",
 		}))

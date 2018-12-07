@@ -25,15 +25,15 @@ func NewAuthHandler() AuthHandler {
 
 type authHandler struct{}
 
-// LoginJson ログインJSON
-type LoginJson struct {
+// LoginJSON ログインJSON
+type LoginJSON struct {
 	UserName string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
 // Login ログイン
 func (h *authHandler) Login(c *gin.Context) {
-	json := LoginJson{}
+	json := LoginJSON{}
 	if err := c.BindJSON(&json); err != nil {
 		log.Println(err)
 		respondFailedLogin(c)
