@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/miyanokomiya/gogollellero/app/server"
+	"github.com/miyanokomiya/gogollellero/app/server/middlewares"
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
 
@@ -18,7 +18,7 @@ func TestAuthRequiredSuccess(t *testing.T) {
 		defer user.Delete()
 
 		login(h.eng, user.ID)
-		h.eng.Use(server.AuthRequired())
+		h.eng.Use(middlewares.AuthRequired())
 		h.eng.GET("/users/:name", func(c *gin.Context) {
 			c.JSON(http.StatusOK, nil)
 		})
@@ -33,7 +33,7 @@ func TestAuthRequiredSuccess(t *testing.T) {
 
 func TestAuthRequiredFailed(t *testing.T) {
 	readyServe(func(h *handlerTest) {
-		h.eng.Use(server.AuthRequired())
+		h.eng.Use(middlewares.AuthRequired())
 		h.eng.GET("/users/:name", func(c *gin.Context) {
 			c.JSON(http.StatusOK, nil)
 		})
@@ -51,7 +51,7 @@ func TestAuthRequiredFailedWhenUserNotFound(t *testing.T) {
 		user := models.User{Name: "username", Password: "1234567890"}
 
 		login(h.eng, user.ID)
-		h.eng.Use(server.AuthRequired())
+		h.eng.Use(middlewares.AuthRequired())
 		h.eng.GET("/users/:name", func(c *gin.Context) {
 			c.JSON(http.StatusOK, nil)
 		})

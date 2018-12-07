@@ -86,12 +86,20 @@ func (h *usersHandler) Create(c *gin.Context) {
 
 // UserUpdateJSON Updateパラメータ
 type UserUpdateJSON struct {
-	ID   int    `json:"id" binding:"required"`
 	Name string `json:"name" binding:"gte=4,lte=64"`
 }
 
 // Update 作成
 func (h *usersHandler) Update(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+
 	json := UserUpdateJSON{}
 	if err := c.BindJSON(&json); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
@@ -102,7 +110,7 @@ func (h *usersHandler) Update(c *gin.Context) {
 	}
 
 	user := models.User{}
-	user.ID = json.ID
+	user.ID = id
 	if err := user.Read(); err != nil {
 		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
 			Key:     "not_found_user",

@@ -87,9 +87,8 @@ func TestUsersHandlerUpdateSuccess(t *testing.T) {
 		user.SetPassword("12345678")
 		user.Create()
 		defer user.Delete()
-		h.eng.PATCH("/users", usersHandlers.Update)
-		req := httptest.NewRequest("PATCH", "/users", createJsonParams(handlers.UserUpdateJSON{
-			ID:   user.ID,
+		h.eng.PATCH("/users/:id", usersHandlers.Update)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/users/%d", user.ID), createJsonParams(handlers.UserUpdateJSON{
 			Name: "new_username",
 		}))
 		h.eng.ServeHTTP(h.rec, req)
@@ -106,9 +105,8 @@ func TestUsersHandlerUpdateSuccess(t *testing.T) {
 
 func TestUsersHandlerUpdateFailedNotFound(t *testing.T) {
 	readyServe(func(h *handlerTest) {
-		h.eng.PATCH("/users", usersHandlers.Update)
-		req := httptest.NewRequest("PATCH", "/users", createJsonParams(handlers.UserUpdateJSON{
-			ID:   1,
+		h.eng.PATCH("/users/:id", usersHandlers.Update)
+		req := httptest.NewRequest("PATCH", "/users/1", createJsonParams(handlers.UserUpdateJSON{
 			Name: "new_username",
 		}))
 		h.eng.ServeHTTP(h.rec, req)
@@ -121,10 +119,8 @@ func TestUsersHandlerUpdateFailedNotFound(t *testing.T) {
 
 func TestUsersHandlerUpdateFailedInvalidParams(t *testing.T) {
 	readyServe(func(h *handlerTest) {
-		h.eng.PATCH("/users", usersHandlers.Update)
-		req := httptest.NewRequest("PATCH", "/users", createJsonParams(handlers.UserUpdateJSON{
-			Name: "new_username",
-		}))
+		h.eng.PATCH("/users/:id", usersHandlers.Update)
+		req := httptest.NewRequest("PATCH", "/users/1", createJsonParams(handlers.UserUpdateJSON{}))
 		h.eng.ServeHTTP(h.rec, req)
 
 		if http.StatusBadRequest != h.rec.Code {
