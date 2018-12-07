@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 
 	"github.com/miyanokomiya/gogollellero/app/server/handlers"
@@ -29,85 +28,85 @@ func TestUsersHandlerShowSuccess(t *testing.T) {
 }
 
 func TestUsersHandlerShowFailed(t *testing.T) {
-	models.GormOpen()
-	defer models.GormClose()
-	user := models.User{Name: "username", Password: "1234567890"}
-	user.Create()
-	defer user.Delete()
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username", Password: "1234567890"}
+		user.Create()
+		defer user.Delete()
+		h.eng.GET("/users/:id", usersHandlers.Show)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/users/%d", user.ID+1), nil)
+		h.eng.ServeHTTP(h.rec, req)
 
-	rec := mockGet(fmt.Sprintf("/api/v1/users/%d", user.ID+1), nil)
-
-	if http.StatusOK == rec.Code {
-		t.Fatal("falied", rec)
-	}
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
 }
 
 func TestUsersHandlerCreateSuccess(t *testing.T) {
-	models.GormOpen()
-	defer models.GormClose()
-	user := models.User{Name: "username"}
-	defer func() {
-		user.Read()
-		user.Delete()
-	}()
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username"}
+		defer func() {
+			user.Read()
+			user.Delete()
+		}()
+		h.eng.POST("/users", usersHandlers.Create)
+		req := httptest.NewRequest("POST", "/users", createJsonParams(handlers.UserCraeteJSON{
+			Name:     "username",
+			Password: "password",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
 
-	json := handlers.UserCraeteJSON{
-		Name:     user.Name,
-		Password: "password",
-	}
-	rec := mockPost("/api/v1/users", json)
-
-	if http.StatusOK != rec.Code {
-		t.Fatal("falied", rec)
-	}
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
 }
 
 func TestUsersHandlerCreateFailed(t *testing.T) {
-	models.GormOpen()
-	defer models.GormClose()
-	user := models.User{Name: "username"}
-	defer func() {
-		user.Read()
-		user.Delete()
-	}()
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username"}
+		defer func() {
+			user.Read()
+			user.Delete()
+		}()
+		h.eng.POST("/users", usersHandlers.Create)
+		req := httptest.NewRequest("POST", "/users", createJsonParams(handlers.UserCraeteJSON{
+			Password: "password",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
 
-	values := url.Values{}
-	values.Add("password", "password")
-
-	json := handlers.UserCraeteJSON{
-		Password: "password",
-	}
-	rec := mockPost("/api/v1/users", json)
-
-	if http.StatusOK == rec.Code {
-		t.Fatal("falied", rec)
-	}
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
 }
 
 func TestUsersHandlerDeleteSuccess(t *testing.T) {
-	models.GormOpen()
-	defer models.GormClose()
-	user := models.User{Name: "username", Password: "1234567890"}
-	user.Create()
-	defer user.Delete()
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username", Password: "1234567890"}
+		user.Create()
+		defer user.Delete()
+		h.eng.DELETE("/users/:id", usersHandlers.Delete)
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/users/%d", user.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
 
-	rec := mockDelete(fmt.Sprintf("/api/v1/users/%d", user.ID), nil)
-
-	if http.StatusOK != rec.Code {
-		t.Fatal("falied", rec)
-	}
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
 }
 
 func TestUsersHandlerDeleteFailed(t *testing.T) {
-	models.GormOpen()
-	defer models.GormClose()
-	user := models.User{Name: "username", Password: "1234567890"}
-	user.Create()
-	defer user.Delete()
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username", Password: "1234567890"}
+		user.Create()
+		defer user.Delete()
+		h.eng.DELETE("/users/:id", usersHandlers.Delete)
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/users/%d", user.ID+1), nil)
+		h.eng.ServeHTTP(h.rec, req)
 
-	rec := mockDelete(fmt.Sprintf("/api/v1/users/%d", user.ID+1), nil)
-
-	if http.StatusOK == rec.Code {
-		t.Fatal("falied", rec)
-	}
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
 }
