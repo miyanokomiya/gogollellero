@@ -14,6 +14,7 @@ import (
 type UsersHandler interface {
 	Show(c *gin.Context)
 	Create(c *gin.Context)
+	Update(c *gin.Context)
 	Delete(c *gin.Context)
 }
 
@@ -73,6 +74,45 @@ func (h *usersHandler) Create(c *gin.Context) {
 	}
 
 	if err := user.Create(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "validation_error",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &user)
+}
+
+// UserUpdateJSON Updateパラメータ
+type UserUpdateJSON struct {
+	ID   int    `json:"id" binding:"required"`
+	Name string `json:"name" binding:"gte=4,lte=64"`
+}
+
+// Update 作成
+func (h *usersHandler) Update(c *gin.Context) {
+	json := UserUpdateJSON{}
+	if err := c.BindJSON(&json); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+
+	user := models.User{}
+	user.ID = json.ID
+	if err := user.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_user",
+			Message: "not found user",
+		})
+		return
+	}
+
+	user.Name = json.Name
+	if err := user.Update(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "validation_error",
 			Message: err.Error(),

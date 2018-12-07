@@ -81,6 +81,58 @@ func TestUsersHandlerCreateFailed(t *testing.T) {
 	})
 }
 
+func TestUsersHandlerUpdateSuccess(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "username"}
+		user.SetPassword("12345678")
+		user.Create()
+		defer user.Delete()
+		h.eng.PATCH("/users", usersHandlers.Update)
+		req := httptest.NewRequest("PATCH", "/users", createJsonParams(handlers.UserUpdateJSON{
+			ID:   user.ID,
+			Name: "new_username",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+		user.Read()
+		if user.Name != "new_username" {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestUsersHandlerUpdateFailedNotFound(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		h.eng.PATCH("/users", usersHandlers.Update)
+		req := httptest.NewRequest("PATCH", "/users", createJsonParams(handlers.UserUpdateJSON{
+			ID:   1,
+			Name: "new_username",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusNotFound != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestUsersHandlerUpdateFailedInvalidParams(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		h.eng.PATCH("/users", usersHandlers.Update)
+		req := httptest.NewRequest("PATCH", "/users", createJsonParams(handlers.UserUpdateJSON{
+			Name: "new_username",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusBadRequest != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
 func TestUsersHandlerDeleteSuccess(t *testing.T) {
 	readyServe(func(h *handlerTest) {
 		user := models.User{Name: "username", Password: "1234567890"}
