@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -12,6 +13,7 @@ import (
 
 // UsersHandler ユーザーハンドラのインタフェース
 type UsersHandler interface {
+	Index(c *gin.Context)
 	Show(c *gin.Context)
 	Create(c *gin.Context)
 	Update(c *gin.Context)
@@ -24,6 +26,21 @@ func NewUsersHandler() UsersHandler {
 }
 
 type usersHandler struct{}
+
+// Index 一覧
+func (h *usersHandler) Index(c *gin.Context) {
+	pagenation := getPagination(c)
+	log.Println("-----------------", pagenation)
+	users := models.Users{}
+	if err := users.Index(pagenation); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
+			Key:     "internal_server_error",
+			Message: "internal server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, users)
+}
 
 // Show 詳細
 func (h *usersHandler) Show(c *gin.Context) {

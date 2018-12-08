@@ -2,6 +2,7 @@ package handlers_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"strings"
 
@@ -44,4 +45,15 @@ func login(eng *gin.Engine, userID int) {
 func createJsonParams(params interface{}) *strings.Reader {
 	json, _ := json.Marshal(params)
 	return strings.NewReader(string(json))
+}
+
+func userListWrapper(count int, fn func(models.Users)) {
+	var users models.Users
+	for i := 0; i < count; i++ {
+		user := models.User{Name: fmt.Sprintf("user_%d", i), Password: "abcdabcd"}
+		user.Create()
+		defer user.Delete()
+		users = append(users, user)
+	}
+	fn(users)
 }

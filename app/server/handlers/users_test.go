@@ -1,6 +1,7 @@
 package handlers_test
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,30 @@ import (
 )
 
 var usersHandlers = handlers.NewUsersHandler()
+
+func TestUsersHandlerIndexSuccess(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		userListWrapper(10, func(users models.Users) {
+			h.eng.GET("/users", usersHandlers.Index)
+			req := httptest.NewRequest("GET", "/users?page=2&limit=3&orderBy=name", nil)
+			h.eng.ServeHTTP(h.rec, req)
+
+			if http.StatusOK != h.rec.Code {
+				t.Fatal("falied", h.rec)
+			}
+			var resUsers models.Users
+			if err := json.Unmarshal(h.rec.Body.Bytes(), &resUsers); err != nil {
+				t.Fatal("falied", h.rec)
+			}
+			if len(resUsers) != 3 {
+				t.Fatal("falied", h.rec)
+			}
+			if resUsers[0].Name != "user_3" {
+				t.Fatal("falied", h.rec)
+			}
+		})
+	})
+}
 
 func TestUsersHandlerShowSuccess(t *testing.T) {
 	readyServe(func(h *handlerTest) {
