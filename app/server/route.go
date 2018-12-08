@@ -17,6 +17,7 @@ func RouteV1(app *gin.Engine) {
 	private := app.Group("/private")
 	private.Use(middlewares.AuthRequired())
 	{
+		private.GET("/users", usersHandler.Index)
 		private.POST("/users", usersHandler.Create)
 		private.GET("/users/:id", usersHandler.Show)
 		private.PATCH("/users/:id", usersHandler.Update)
