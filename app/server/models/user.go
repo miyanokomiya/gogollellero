@@ -77,7 +77,7 @@ func (user *User) SetPassword(password string) error {
 	if password == "" {
 		return errors.New("empty password")
 	}
-	hash, err := bcrypt.GenerateFromPassword([]byte("password"), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
