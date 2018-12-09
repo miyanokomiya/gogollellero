@@ -57,3 +57,24 @@ func userListWrapper(count int, fn func(models.Users)) {
 	}
 	fn(users)
 }
+
+func postListWrapper(count int, fn func(models.Posts)) {
+	var posts models.Posts
+	for i := 0; i < count; i++ {
+		user := models.User{Name: fmt.Sprintf("user_%d", i), Password: "abcdabcd"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{
+			UserID:   user.ID,
+			User:     user,
+			Title:    fmt.Sprintf("title_%d", i),
+			Problem:  "problem",
+			Solution: "solution",
+			Lesson:   "lesson",
+		}
+		post.Create()
+		defer post.Delete()
+		posts = append(posts, post)
+	}
+	fn(posts)
+}
