@@ -49,9 +49,9 @@ func GormClose() {
 
 // Model 基底モデル
 type Model struct {
-	ID        int `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID        int       `json:"id" gorm:"primary_key"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // Pagination ページネーション情報
