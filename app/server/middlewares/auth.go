@@ -28,9 +28,10 @@ func AuthRequired() gin.HandlerFunc {
 				log.Println(err)
 			}
 		}
+
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "invalid_auth",
-			Message: "invalud auth",
+			Message: "invalid auth",
 		})
 	}
 }

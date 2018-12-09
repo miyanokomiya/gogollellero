@@ -10,8 +10,8 @@ import (
 // User ユーザー
 type User struct {
 	Model
-	Name     string `binding:"required,gte=4,lte=64"`
-	Password string `binding:"required"` // ハッシュ化済文字列
+	Name     string `json:"name" binding:"required,gte=4,lte=64"`
+	Password string `json:"password" binding:"required"` // ハッシュ化済文字列
 }
 
 // Users ユーザー一覧

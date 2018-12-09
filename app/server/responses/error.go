@@ -2,6 +2,6 @@ package responses
 
 // Error エラーレスポンス
 type Error struct {
-	Key     string
-	Message string
+	Key     string `json:"key"`
+	Message string `json:"message"`
 }
