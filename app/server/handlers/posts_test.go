@@ -20,12 +20,9 @@ func TestPostsHandlerIndexSuccess(t *testing.T) {
 		defer user.Delete()
 		for i := 0; i < 10; i++ {
 			post := models.Post{
-				UserID:   user.ID,
-				User:     user,
-				Title:    fmt.Sprintf("title_%d", i),
-				Problem:  "problem",
-				Solution: "solution",
-				Lesson:   "lesson",
+				UserID: user.ID,
+				User:   user,
+				Title:  fmt.Sprintf("title_%d", i),
 			}
 			post.Create()
 			defer post.Delete()
@@ -57,6 +54,39 @@ func TestPostsHandlerIndex_NotLogin(t *testing.T) {
 	readyServe(func(h *handlerTest) {
 		h.eng.GET("/posts", postsHandlers.Index)
 		req := httptest.NewRequest("GET", "/posts?page=2&limit=3&orderBy=title", nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerCreate_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		login(h.eng, user.ID)
+
+		h.eng.POST("/posts", postsHandlers.Index)
+		req := httptest.NewRequest("POST", "/posts", createJsonParams(handlers.PostCraeteJSON{
+			Title: "title",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerCreate_NotLogin(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		h.eng.POST("/posts", postsHandlers.Index)
+		req := httptest.NewRequest("POST", "/posts", createJsonParams(handlers.PostCraeteJSON{
+			Title: "title",
+		}))
 		h.eng.ServeHTTP(h.rec, req)
 
 		if http.StatusOK == h.rec.Code {
