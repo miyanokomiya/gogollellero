@@ -21,7 +21,6 @@ func TestPostsHandlerIndexSuccess(t *testing.T) {
 		for i := 0; i < 10; i++ {
 			post := models.Post{
 				UserID: user.ID,
-				User:   user,
 				Title:  fmt.Sprintf("title_%d", i),
 			}
 			post.Create()
@@ -95,6 +94,54 @@ func TestPostsHandlerCreate_NotLogin(t *testing.T) {
 	})
 }
 
+func TestPostsHandlerUpdate_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{
+			Title:  "titile",
+			UserID: user.ID,
+		}
+		post.Create()
+		defer post.Delete()
+		login(h.eng, user.ID)
+
+		h.eng.PATCH("/posts/:id", postsHandlers.Update)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", post.ID), createJsonParams(handlers.PostUpdateJSON{
+			Title: "new_title",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+		post.Read()
+		if post.Title != "new_title" {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerUpdate_NotFound(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		login(h.eng, user.ID)
+
+		h.eng.PATCH("/posts/:id", postsHandlers.Update)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", 1), createJsonParams(handlers.PostUpdateJSON{
+			Title: "new_title",
+		}))
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
 func TestPostsHandlerDelete_Success(t *testing.T) {
 	readyServe(func(h *handlerTest) {
 		user := models.User{Name: "user", Password: "password"}
@@ -103,7 +150,6 @@ func TestPostsHandlerDelete_Success(t *testing.T) {
 		post := models.Post{
 			Title:  "titile",
 			UserID: user.ID,
-			User:   user,
 		}
 		post.Create()
 		defer post.Delete()

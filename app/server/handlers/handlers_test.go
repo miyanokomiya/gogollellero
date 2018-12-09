@@ -66,7 +66,6 @@ func postListWrapper(count int, fn func(models.Posts)) {
 		defer user.Delete()
 		post := models.Post{
 			UserID:   user.ID,
-			User:     user,
 			Title:    fmt.Sprintf("title_%d", i),
 			Problem:  "problem",
 			Solution: "solution",

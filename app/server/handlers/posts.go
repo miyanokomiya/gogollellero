@@ -14,6 +14,7 @@ import (
 type PostsHandler interface {
 	Index(c *gin.Context)
 	Create(c *gin.Context)
+	Update(c *gin.Context)
 	Delete(c *gin.Context)
 }
 
@@ -67,7 +68,6 @@ func (h *postsHandler) Create(c *gin.Context) {
 
 	post := models.Post{
 		UserID:   user.ID,
-		User:     *user,
 		Title:    json.Title,
 		Problem:  json.Problem,
 		Solution: json.Solution,
@@ -75,6 +75,59 @@ func (h *postsHandler) Create(c *gin.Context) {
 	}
 
 	if err := post.Create(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "validation_error",
+			Message: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &post)
+}
+
+// PostUpdateJSON Updateパラメータ
+type PostUpdateJSON struct {
+	Title    string `json:"title" binding:"required,lte=256"`
+	Problem  string `json:"problem"`
+	Solution string `json:"solution"`
+	Lesson   string `json:"lesson"`
+}
+
+// Update 作成
+func (h *postsHandler) Update(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+
+	json := PostUpdateJSON{}
+	if err := c.BindJSON(&json); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+
+	post := models.Post{}
+	post.ID = id
+	if err := post.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_user",
+			Message: "not found user",
+		})
+		return
+	}
+
+	post.Title = json.Title
+	post.Problem = json.Problem
+	post.Solution = json.Solution
+	post.Lesson = json.Lesson
+	if err := post.Update(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "validation_error",
 			Message: err.Error(),

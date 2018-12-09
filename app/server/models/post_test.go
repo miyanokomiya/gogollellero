@@ -17,7 +17,6 @@ func TestCreatePost(t *testing.T) {
 	defer user.Delete()
 	post := Post{
 		UserID:   user.ID,
-		User:     user,
 		Title:    "title",
 		Problem:  "problem",
 		Solution: "solution",
@@ -47,7 +46,6 @@ func TestReadPost(t *testing.T) {
 	defer user.Delete()
 	post := Post{
 		UserID:   user.ID,
-		User:     user,
 		Title:    "title",
 		Problem:  "problem",
 		Solution: "solution",
@@ -81,7 +79,6 @@ func TestUpdatePost(t *testing.T) {
 	defer user.Delete()
 	post := Post{
 		UserID:   user.ID,
-		User:     user,
 		Title:    "title",
 		Problem:  "problem",
 		Solution: "solution",
@@ -114,7 +111,6 @@ func TestUpdatePost2(t *testing.T) {
 	defer user.Delete()
 	post := Post{
 		UserID:   user.ID,
-		User:     user,
 		Title:    "title",
 		Problem:  "problem",
 		Solution: "solution",
@@ -165,7 +161,6 @@ func TestIndexPostInUser(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		post := Post{
 			UserID:   user2.ID,
-			User:     user2,
 			Title:    fmt.Sprintf("title_%d", i),
 			Problem:  "problem",
 			Solution: "solution",
@@ -177,7 +172,6 @@ func TestIndexPostInUser(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		post := Post{
 			UserID:   user1.ID,
-			User:     user1,
 			Title:    fmt.Sprintf("title_%d", i),
 			Problem:  "problem",
 			Solution: "solution",

@@ -6,7 +6,7 @@ import "errors"
 type Post struct {
 	Model
 	UserID   int    `json:"userID" binding:"required"`
-	User     User   `json:"user" gorm:"ForeignKey:UserID"`
+	User     *User  `json:"user" gorm:"ForeignKey:UserID"`
 	Title    string `json:"title" binding:"required,lte=256"`
 	Problem  string `json:"problem"`
 	Solution string `json:"solution"`

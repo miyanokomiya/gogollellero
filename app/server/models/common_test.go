@@ -47,7 +47,6 @@ func postListWrapper(count int, fn func(Posts)) {
 		defer DB.Delete(&user)
 		post := Post{
 			UserID:   user.ID,
-			User:     user,
 			Title:    fmt.Sprintf("title_%d", i),
 			Problem:  "problem",
 			Solution: "solution",
