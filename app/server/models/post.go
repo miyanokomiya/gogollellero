@@ -11,6 +11,7 @@ type Post struct {
 	Problem  string `json:"problem"`
 	Solution string `json:"solution"`
 	Lesson   string `json:"lesson"`
+	Tags     []Tag  `json:"tags" gorm:"many2many:post_tags;"`
 }
 
 // Posts ポスト一覧
