@@ -94,3 +94,37 @@ func TestPostsHandlerCreate_NotLogin(t *testing.T) {
 		}
 	})
 }
+
+func TestPostsHandlerDelete_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{
+			Title:  "titile",
+			UserID: user.ID,
+			User:   user,
+		}
+		post.Create()
+		defer post.Delete()
+		h.eng.DELETE("/posts/:id", postsHandlers.Delete)
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/posts/%d", post.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerDelete_Failed(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		h.eng.DELETE("/post/:id", postsHandlers.Delete)
+		req := httptest.NewRequest("DELETE", fmt.Sprintf("/posts/%d", 1), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}

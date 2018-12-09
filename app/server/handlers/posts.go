@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
 
@@ -13,6 +14,7 @@ import (
 type PostsHandler interface {
 	Index(c *gin.Context)
 	Create(c *gin.Context)
+	Delete(c *gin.Context)
 }
 
 // NewPostsHandler 生成
@@ -81,4 +83,33 @@ func (h *postsHandler) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &post)
+}
+
+// Delete 削除
+func (h *postsHandler) Delete(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_params",
+			Message: "invalid params",
+		})
+		return
+	}
+	post := models.Post{}
+	post.ID = id
+	if err := post.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_post",
+			Message: "not found post",
+		})
+		return
+	}
+	if err := post.Delete(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
+			Key:     "failed_delete_post",
+			Message: "failed delete post",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, nil)
 }
