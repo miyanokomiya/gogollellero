@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
 
@@ -13,6 +12,7 @@ import (
 // PostsHandler ユーザーハンドラのインタフェース
 type PostsHandler interface {
 	Index(c *gin.Context)
+	Show(c *gin.Context)
 	Create(c *gin.Context)
 	Update(c *gin.Context)
 	Delete(c *gin.Context)
@@ -41,6 +41,21 @@ func (h *postsHandler) Index(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, posts)
+}
+
+// Show 詳細
+func (h *postsHandler) Show(c *gin.Context) {
+	id := parseID(c)
+	if id == 0 {
+		return
+	}
+
+	post := getPost(c, id)
+	if post == nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
 }
 
 // PostCraeteJSON Createパラメータ
@@ -95,12 +110,8 @@ type PostUpdateJSON struct {
 
 // Update 作成
 func (h *postsHandler) Update(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
-			Key:     "invalid_params",
-			Message: "invalid params",
-		})
+	id := parseID(c)
+	if id == 0 {
 		return
 	}
 
@@ -113,13 +124,8 @@ func (h *postsHandler) Update(c *gin.Context) {
 		return
 	}
 
-	post := models.Post{}
-	post.ID = id
-	if err := post.Read(); err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
-			Key:     "not_found_user",
-			Message: "not found user",
-		})
+	post := getPost(c, id)
+	if post == nil {
 		return
 	}
 
@@ -148,23 +154,16 @@ func (h *postsHandler) Update(c *gin.Context) {
 
 // Delete 削除
 func (h *postsHandler) Delete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
-			Key:     "invalid_params",
-			Message: "invalid params",
-		})
+	id := parseID(c)
+	if id == 0 {
 		return
 	}
-	post := models.Post{}
-	post.ID = id
-	if err := post.Read(); err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
-			Key:     "not_found_post",
-			Message: "not found post",
-		})
+
+	post := getPost(c, id)
+	if post == nil {
 		return
 	}
+
 	if err := post.Delete(); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
 			Key:     "failed_delete_post",
@@ -173,4 +172,17 @@ func (h *postsHandler) Delete(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, nil)
+}
+
+func getPost(c *gin.Context, id int) *models.Post {
+	post := models.Post{}
+	post.ID = id
+	if err := post.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_post",
+			Message: "not found post",
+		})
+		return nil
+	}
+	return &post
 }

@@ -61,6 +61,33 @@ func TestPostsHandlerIndex_NotLogin(t *testing.T) {
 	})
 }
 
+func TestPostsHandlerShow_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		post := models.Post{Title: "title"}
+		post.Create()
+		defer post.Delete()
+		h.eng.GET("/post/:id", postsHandlers.Show)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/post/%d", post.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerShow_NotFound(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		h.eng.GET("/post/:id", postsHandlers.Show)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/post/%d", 1), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
 func TestPostsHandlerCreate_Success(t *testing.T) {
 	readyServe(func(h *handlerTest) {
 		user := models.User{Name: "user", Password: "password"}

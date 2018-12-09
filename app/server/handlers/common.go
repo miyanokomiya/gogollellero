@@ -51,3 +51,15 @@ func GetCurrentUser(c *gin.Context) *models.User {
 	})
 	return nil
 }
+
+func parseID(c *gin.Context) int {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "invalid_id",
+			Message: "invalid id",
+		})
+		return 0
+	}
+	return id
+}

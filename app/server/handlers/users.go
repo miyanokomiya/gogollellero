@@ -3,7 +3,6 @@ package handlers
 import (
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
 
@@ -44,23 +43,16 @@ func (h *usersHandler) Index(c *gin.Context) {
 
 // Show 詳細
 func (h *usersHandler) Show(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
-			Key:     "invalid_params",
-			Message: "invalid params",
-		})
+	id := parseID(c)
+	if id == 0 {
 		return
 	}
-	user := models.User{}
-	user.ID = id
-	if err := user.Read(); err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
-			Key:     "not_found_user",
-			Message: "not found user",
-		})
+
+	user := getUser(c, id)
+	if user == nil {
 		return
 	}
+
 	c.JSON(http.StatusOK, user)
 }
 
@@ -108,12 +100,8 @@ type UserUpdateJSON struct {
 
 // Update 作成
 func (h *usersHandler) Update(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
-			Key:     "invalid_params",
-			Message: "invalid params",
-		})
+	id := parseID(c)
+	if id == 0 {
 		return
 	}
 
@@ -126,13 +114,8 @@ func (h *usersHandler) Update(c *gin.Context) {
 		return
 	}
 
-	user := models.User{}
-	user.ID = id
-	if err := user.Read(); err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
-			Key:     "not_found_user",
-			Message: "not found user",
-		})
+	user := getUser(c, id)
+	if user == nil {
 		return
 	}
 
@@ -150,23 +133,16 @@ func (h *usersHandler) Update(c *gin.Context) {
 
 // Delete 削除
 func (h *usersHandler) Delete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
-			Key:     "invalid_params",
-			Message: "invalid params",
-		})
+	id := parseID(c)
+	if id == 0 {
 		return
 	}
-	user := models.User{}
-	user.ID = id
-	if err := user.Read(); err != nil {
-		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
-			Key:     "not_found_user",
-			Message: "not found user",
-		})
+
+	user := getUser(c, id)
+	if user == nil {
 		return
 	}
+
 	if err := user.Delete(); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
 			Key:     "failed_delete_user",
@@ -175,4 +151,17 @@ func (h *usersHandler) Delete(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, nil)
+}
+
+func getUser(c *gin.Context, id int) *models.User {
+	user := models.User{}
+	user.ID = id
+	if err := user.Read(); err != nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_user",
+			Message: "not found user",
+		})
+		return nil
+	}
+	return &user
 }
