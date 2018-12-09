@@ -8,9 +8,9 @@ type Post struct {
 	UserID   int    `json:"userID" binding:"required"`
 	User     User   `json:"user" gorm:"ForeignKey:UserID"`
 	Title    string `json:"title" binding:"required,lte=256"`
-	Problem  string `json:"problem" binding:"required"`
-	Solution string `json:"solution" binding:"required"`
-	Lesson   string `json:"lesson" binding:"required"`
+	Problem  string `json:"problem"`
+	Solution string `json:"solution"`
+	Lesson   string `json:"lesson"`
 }
 
 // Posts ポスト一覧
