@@ -87,10 +87,10 @@ func (h *postsHandler) Create(c *gin.Context) {
 
 // PostUpdateJSON Updateパラメータ
 type PostUpdateJSON struct {
-	Title    string `json:"title" binding:"required,lte=256"`
-	Problem  string `json:"problem"`
-	Solution string `json:"solution"`
-	Lesson   string `json:"lesson"`
+	Title    *string `json:"title" binding:"required,lte=256"`
+	Problem  *string `json:"problem"`
+	Solution *string `json:"solution"`
+	Lesson   *string `json:"lesson"`
 }
 
 // Update 作成
@@ -123,10 +123,18 @@ func (h *postsHandler) Update(c *gin.Context) {
 		return
 	}
 
-	post.Title = json.Title
-	post.Problem = json.Problem
-	post.Solution = json.Solution
-	post.Lesson = json.Lesson
+	if json.Title != nil {
+		post.Title = *json.Title
+	}
+	if json.Problem != nil {
+		post.Problem = *json.Problem
+	}
+	if json.Solution != nil {
+		post.Solution = *json.Solution
+	}
+	if json.Lesson != nil {
+		post.Lesson = *json.Lesson
+	}
 	if err := post.Update(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
 			Key:     "validation_error",

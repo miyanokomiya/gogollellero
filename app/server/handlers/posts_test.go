@@ -107,9 +107,11 @@ func TestPostsHandlerUpdate_Success(t *testing.T) {
 		defer post.Delete()
 		login(h.eng, user.ID)
 
+		title := "new_title"
+
 		h.eng.PATCH("/posts/:id", postsHandlers.Update)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", post.ID), createJsonParams(handlers.PostUpdateJSON{
-			Title: "new_title",
+			Title: &title,
 		}))
 		h.eng.ServeHTTP(h.rec, req)
 
@@ -130,9 +132,11 @@ func TestPostsHandlerUpdate_NotFound(t *testing.T) {
 		defer user.Delete()
 		login(h.eng, user.ID)
 
+		title := "new_title"
+
 		h.eng.PATCH("/posts/:id", postsHandlers.Update)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", 1), createJsonParams(handlers.PostUpdateJSON{
-			Title: "new_title",
+			Title: &title,
 		}))
 		h.eng.ServeHTTP(h.rec, req)
 
