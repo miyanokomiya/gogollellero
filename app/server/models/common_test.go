@@ -35,6 +35,31 @@ func userListWrapper(count int, fn func(Users)) {
 	fn(users)
 }
 
+func postListWrapper(count int, fn func(Posts)) {
+	GormOpen()
+	var posts Posts
+	for i := 0; i < count; i++ {
+		user := User{
+			Name:     fmt.Sprintf("user_%d", i),
+			Password: "password",
+		}
+		DB.Create(&user)
+		defer DB.Delete(&user)
+		post := Post{
+			UserID:   user.ID,
+			User:     user,
+			Title:    fmt.Sprintf("title_%d", i),
+			Problem:  "problem",
+			Solution: "solution",
+			Lesson:   "lesson",
+		}
+		DB.Create(&post)
+		defer DB.Delete(&post)
+		posts = append(posts, post)
+	}
+	fn(posts)
+}
+
 func TestPaginate(t *testing.T) {
 	userListWrapper(10, func(_ Users) {
 		users := Users{}
