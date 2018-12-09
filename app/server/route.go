@@ -10,6 +10,7 @@ import (
 func RouteV1(app *gin.Engine) {
 	authHandler := handlers.NewAuthHandler()
 	usersHandler := handlers.NewUsersHandler()
+	postsHandler := handlers.NewPostsHandler()
 
 	app.Use(middlewares.CORSMiddleware())
 	app.POST("/login", authHandler.Login)
@@ -24,5 +25,11 @@ func RouteV1(app *gin.Engine) {
 		private.GET("/users/:id", usersHandler.Show)
 		private.PATCH("/users/:id", usersHandler.Update)
 		private.DELETE("/users/:id", usersHandler.Delete)
+
+		private.GET("/posts", postsHandler.Index)
+		private.POST("/posts", postsHandler.Create)
+		private.GET("/posts/:id", postsHandler.Show)
+		private.PATCH("/posts/:id", postsHandler.Update)
+		private.DELETE("/posts/:id", postsHandler.Delete)
 	}
 }
