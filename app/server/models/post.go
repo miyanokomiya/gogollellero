@@ -11,7 +11,7 @@ type Post struct {
 	Problem  string `json:"problem"`
 	Solution string `json:"solution"`
 	Lesson   string `json:"lesson"`
-	Tags     []Tag  `json:"tags" gorm:"many2many:post_tags;"`
+	Tags     Tags   `json:"tags" gorm:"many2many:post_tags;"`
 }
 
 // Posts ポスト一覧
@@ -30,14 +30,14 @@ func (post *Post) Create() error {
 // Read 読込
 func (post *Post) Read() error {
 	if post.ID != 0 {
-		return DB.First(post).Error
+		return DB.Preload("Tags").First(post).Error
 	}
 	return errors.New("no key to read")
 }
 
 // Update 更新
 func (post *Post) Update() error {
-	return DB.Save(post).Error
+	return DB.Update(post).Error
 }
 
 // Delete 削除
@@ -47,7 +47,7 @@ func (post *Post) Delete() error {
 
 // Index 一覧
 func (posts *Posts) Index(pagination *Pagination) error {
-	return paginate(DB, pagination).Find(posts).Error
+	return paginate(DB.Preload("Tags"), pagination).Find(posts).Error
 }
 
 // IndexInUser 一覧

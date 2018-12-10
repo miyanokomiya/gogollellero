@@ -38,6 +38,9 @@ func userListWrapper(count int, fn func(Users)) {
 func postListWrapper(count int, fn func(Posts)) {
 	GormOpen()
 	var posts Posts
+	tag := Tag{Title: "tag"}
+	DB.Create(&tag)
+	defer DB.Delete(&tag)
 	for i := 0; i < count; i++ {
 		user := User{
 			Name:     fmt.Sprintf("user_%d", i),
@@ -45,12 +48,15 @@ func postListWrapper(count int, fn func(Posts)) {
 		}
 		DB.Create(&user)
 		defer DB.Delete(&user)
+		var tags Tags
+		tags = append(tags, tag)
 		post := Post{
 			UserID:   user.ID,
 			Title:    fmt.Sprintf("title_%d", i),
 			Problem:  "problem",
 			Solution: "solution",
 			Lesson:   "lesson",
+			Tags:     tags,
 		}
 		DB.Create(&post)
 		defer DB.Delete(&post)

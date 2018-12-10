@@ -40,7 +40,7 @@ func (user *User) Read() error {
 
 // Update 更新
 func (user *User) Update() error {
-	return DB.Save(user).Error
+	return DB.Update(user).Error
 }
 
 // Delete 削除

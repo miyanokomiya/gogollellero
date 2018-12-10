@@ -147,6 +147,9 @@ func TestIndexPost(t *testing.T) {
 		if len(posts) != 3 {
 			t.Fatal("failed test", len(posts))
 		}
+		if len(posts[0].Tags) != 1 {
+			t.Fatal("failed test", posts[0].Tags)
+		}
 	})
 }
 
