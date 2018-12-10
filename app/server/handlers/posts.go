@@ -102,10 +102,11 @@ func (h *postsHandler) Create(c *gin.Context) {
 
 // PostUpdateJSON Updateパラメータ
 type PostUpdateJSON struct {
-	Title    *string `json:"title" binding:"required,lte=256"`
-	Problem  *string `json:"problem"`
-	Solution *string `json:"solution"`
-	Lesson   *string `json:"lesson"`
+	Title    *string  `json:"title" binding:"required,lte=256"`
+	Problem  *string  `json:"problem"`
+	Solution *string  `json:"solution"`
+	Lesson   *string  `json:"lesson"`
+	Tags     []string `json:"tags"`
 }
 
 // Update 作成
@@ -140,6 +141,17 @@ func (h *postsHandler) Update(c *gin.Context) {
 	}
 	if json.Lesson != nil {
 		post.Lesson = *json.Lesson
+	}
+	if json.Tags != nil {
+		tags, err := models.CreateTagsIfNotExist(json.Tags)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
+				Key:     "failed_update_post",
+				Message: "failed update post",
+			})
+			return
+		}
+		post.Tags = tags
 	}
 	if err := post.Update(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{

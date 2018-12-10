@@ -61,12 +61,12 @@ func TestUpdate(t *testing.T) {
 	DB.First(&created, "Name = ?", user.Name)
 
 	// 更新
-	update := User{}
-	update.ID = created.ID
-	update.Name = "updated"
-	update.Update()
-	if update.Name != "updated" {
-		t.Fatal("failed update", update)
+	created.Name = "updated"
+	if err := created.Update(); err != nil {
+		t.Fatal("failed update", err)
+	}
+	if created.Name != "updated" {
+		t.Fatal("failed update", created)
 	}
 }
 

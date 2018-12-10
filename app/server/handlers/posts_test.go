@@ -132,13 +132,19 @@ func TestPostsHandlerUpdate_Success(t *testing.T) {
 		}
 		post.Create()
 		defer post.Delete()
+		tag1 := models.Tag{Title: "a"}
+		defer models.DB.Delete(&tag1)
+		tag2 := models.Tag{Title: "b"}
+		defer models.DB.Delete(&tag2)
 		login(h.eng, user.ID)
 
 		title := "new_title"
+		tags := []string{"a", "b"}
 
 		h.eng.PATCH("/posts/:id", postsHandlers.Update)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", post.ID), createJsonParams(handlers.PostUpdateJSON{
 			Title: &title,
+			Tags:  tags,
 		}))
 		h.eng.ServeHTTP(h.rec, req)
 

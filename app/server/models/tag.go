@@ -14,12 +14,15 @@ func (tag *Tag) CreateIfNotExist() error {
 	return DB.FirstOrCreate(tag).Error
 }
 
-// CreateIfNotExist 未作成ならば作成
-func (tags Tags) CreateIfNotExist() error {
-	for _, tag := range tags {
+// CreateTagsIfNotExist 未作成ならば作成
+func CreateTagsIfNotExist(titles []string) (Tags, error) {
+	var tags Tags
+	for _, title := range titles {
+		tag := Tag{Title: title}
 		if err := tag.CreateIfNotExist(); err != nil {
-			return err
+			return nil, err
 		}
+		tags = append(tags, tag)
 	}
-	return nil
+	return tags, nil
 }

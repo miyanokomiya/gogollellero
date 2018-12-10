@@ -13,7 +13,7 @@ func TestCreateIfNotExistTag(t *testing.T) {
 		t.Fatal("failed test", err)
 	}
 	defer DB.Delete(&tag)
-	if tag.Title != "title" {
+	if tag.ID == 0 {
 		t.Fatal("failed test", tag)
 	}
 	// 存在するものを再度保存しても問題なし
@@ -27,21 +27,15 @@ func TestCreateIfNotExistTag(t *testing.T) {
 
 func TestCreateIfNotExistTags(t *testing.T) {
 	GormOpen()
-	tag1 := Tag{
-		Title: "title1",
-	}
-	tag2 := Tag{
-		Title: "title2",
-	}
-	var tags Tags
-	tags = append(tags, tag1, tag2)
-	defer DB.Delete(&tag1)
-	defer DB.Delete(&tag2)
-	if err := tags.CreateIfNotExist(); err != nil {
+	titles := []string{"a", "b"}
+	tags, err := CreateTagsIfNotExist(titles)
+	if err != nil {
 		t.Fatal("failed test", err)
 	}
-	// 再作成
-	if err := tags.CreateIfNotExist(); err != nil {
-		t.Fatal("failed test", err)
+	for _, tag := range tags {
+		defer DB.Delete(&tag)
+		if tag.ID == 0 {
+			t.Fatal("failed test", tag)
+		}
 	}
 }
