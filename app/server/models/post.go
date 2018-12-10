@@ -37,7 +37,7 @@ func (post *Post) Read() error {
 
 // Update 更新
 func (post *Post) Update() error {
-	return DB.Update(post).Error
+	return DB.Save(post).Error
 }
 
 // Delete 削除
