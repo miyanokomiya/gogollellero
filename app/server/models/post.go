@@ -1,6 +1,8 @@
 package models
 
-import "errors"
+import (
+	"errors"
+)
 
 // Post ポスト
 type Post struct {
@@ -37,7 +39,9 @@ func (post *Post) Read() error {
 
 // Update 更新
 func (post *Post) Update() error {
-	return DB.Save(post).Error
+	tags := post.Tags
+	// TODO トランザクションに不安が残る
+	return DB.Save(post).Model(post).Association("Tags").Replace(tags).Error
 }
 
 // Delete 削除

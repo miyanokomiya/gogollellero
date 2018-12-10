@@ -77,12 +77,17 @@ func TestUpdatePost(t *testing.T) {
 		t.Fatal("failed test", err)
 	}
 	defer user.Delete()
+	tags, _ := CreateTagsIfNotExist([]string{"a", "b", "c"})
+	for _, tag := range tags {
+		defer DB.Delete(&tag)
+	}
 	post := Post{
 		UserID:   user.ID,
 		Title:    "title",
 		Problem:  "problem",
 		Solution: "solution",
 		Lesson:   "lesson",
+		Tags:     tags,
 	}
 	DB.Create(&post)
 	defer DB.Delete(&post)
@@ -90,23 +95,32 @@ func TestUpdatePost(t *testing.T) {
 	DB.First(&created, "ID = ?", post.ID)
 
 	// 更新
-	tags, _ := CreateTagsIfNotExist([]string{"a", "b"})
-	for _, tag := range tags {
-		DB.Delete(&tag)
+	tags2, _ := CreateTagsIfNotExist([]string{"c", "b"})
+	for _, tag := range tags2 {
+		defer DB.Delete(&tag)
 	}
 	created.Title = "new_title"
-	created.Tags = tags
+	created.Tags = tags2
 	if err := created.Update(); err != nil {
 		t.Fatal("failed update", err)
 	}
-	if created.Title != "new_title" {
-		t.Fatal("failed update", created)
+	updated := Post{}
+	updated.ID = created.ID
+	if err := updated.Read(); err != nil {
+		t.Fatal("failed update", updated)
 	}
-	if created.Tags[0].Title != "a" {
-		t.Fatal("failed update", created)
+	if updated.Title != "new_title" {
+		t.Fatal("failed update", updated)
 	}
-	if created.Tags[1].Title != "b" {
-		t.Fatal("failed update", created)
+	// タグ参照が置き換えられていること
+	if len(updated.Tags) != 2 {
+		t.Fatal("failed update", updated)
+	}
+	if updated.Tags[0].Title != "c" {
+		t.Fatal("failed update", updated)
+	}
+	if updated.Tags[1].Title != "b" {
+		t.Fatal("failed update", updated)
 	}
 }
 
