@@ -38,4 +38,10 @@ func TestCreateIfNotExistTags(t *testing.T) {
 			t.Fatal("failed test", tag)
 		}
 	}
+	if tags[0].Title != "a" {
+		t.Fatal("failed update", tags)
+	}
+	if tags[1].Title != "b" {
+		t.Fatal("failed update", tags)
+	}
 }

@@ -11,14 +11,15 @@ type Tags []Tag
 
 // CreateIfNotExist 未作成ならば作成
 func (tag *Tag) CreateIfNotExist() error {
-	return DB.FirstOrCreate(tag).Error
+	return DB.Where(Tag{Title: tag.Title}).FirstOrCreate(tag).Error
 }
 
 // CreateTagsIfNotExist 未作成ならば作成
 func CreateTagsIfNotExist(titles []string) (Tags, error) {
 	var tags Tags
+	var tag Tag
 	for _, title := range titles {
-		tag := Tag{Title: title}
+		tag = Tag{Title: title}
 		if err := tag.CreateIfNotExist(); err != nil {
 			return nil, err
 		}

@@ -102,6 +102,12 @@ func TestUpdatePost(t *testing.T) {
 	if created.Title != "new_title" {
 		t.Fatal("failed update", created)
 	}
+	if created.Tags[0].Title != "a" {
+		t.Fatal("failed update", created)
+	}
+	if created.Tags[1].Title != "b" {
+		t.Fatal("failed update", created)
+	}
 }
 
 func TestUpdatePost2(t *testing.T) {
