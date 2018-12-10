@@ -47,12 +47,12 @@ func (post *Post) Delete() error {
 
 // Index 一覧
 func (posts *Posts) Index(pagination *Pagination) error {
-	return paginate(DB.Preload("Tags"), pagination).Find(posts).Error
+	return paginate(DB, pagination).Preload("Tags").Find(posts).Error
 }
 
 // IndexInUser 一覧
 func (posts *Posts) IndexInUser(pagination *Pagination, userID int) error {
-	return paginate(DB.Where("user_id = ?", userID), pagination).Find(posts).Error
+	return paginate(DB.Where("user_id = ?", userID), pagination).Preload("Tags").Find(posts).Error
 }
 
 // BatchDeletePost 一覧削除
