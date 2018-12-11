@@ -95,7 +95,7 @@ func TestUpdatePost(t *testing.T) {
 	DB.First(&created, "ID = ?", post.ID)
 
 	// 更新
-	tags2, _ := CreateTagsIfNotExist([]string{"c", "b"})
+	tags2, _ := CreateTagsIfNotExist([]string{"b", "c"})
 	for _, tag := range tags2 {
 		defer DB.Delete(&tag)
 	}
@@ -116,10 +116,10 @@ func TestUpdatePost(t *testing.T) {
 	if len(updated.Tags) != 2 {
 		t.Fatal("failed update", updated)
 	}
-	if updated.Tags[0].Title != "c" {
+	if updated.Tags[0].Title != "b" {
 		t.Fatal("failed update", updated)
 	}
-	if updated.Tags[1].Title != "b" {
+	if updated.Tags[1].Title != "c" {
 		t.Fatal("failed update", updated)
 	}
 }

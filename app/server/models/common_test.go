@@ -3,6 +3,8 @@ package models
 import (
 	"fmt"
 	"testing"
+
+	"github.com/jinzhu/gorm"
 )
 
 func TestGormOpen(t *testing.T) {
@@ -20,6 +22,41 @@ func TestGormClose(t *testing.T) {
 	GormClose()
 	if DB != nil {
 		t.Fatal("failed test")
+	}
+}
+
+func TestTxSuccess(t *testing.T) {
+	GormOpen()
+	user1 := User{Name: "user1", Password: "abcdabcd"}
+	Tx(func(db *gorm.DB) error {
+		return db.Create(&user1).Error
+	})
+	defer DB.Delete(&user1)
+	created := User{}
+	created.ID = user1.ID
+	if err := created.Read(); err != nil {
+		t.Fatal("failed test", err)
+	}
+}
+
+func TestTxRollback(t *testing.T) {
+	GormOpen()
+	user1 := User{Name: "user1", Password: "abcdabcd"}
+	user2 := User{Name: "user1", Password: "abcdabcd"}
+	err := Tx(func(db *gorm.DB) error {
+		if err := db.Create(&user1).Error; err != nil {
+			t.Fatal("failed test", err)
+		}
+		return db.Create(&user2).Error
+	})
+	defer DB.Delete(&user1)
+	if err == nil {
+		t.Fatal("failed test", err)
+	}
+	created := User{}
+	created.ID = user1.ID
+	if err := created.Read(); err == nil {
+		t.Fatal("failed test", err)
 	}
 }
 

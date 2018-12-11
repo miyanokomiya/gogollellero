@@ -2,6 +2,8 @@ package models
 
 import (
 	"errors"
+
+	"github.com/jinzhu/gorm"
 )
 
 // Post ポスト
@@ -40,8 +42,9 @@ func (post *Post) Read() error {
 // Update 更新
 func (post *Post) Update() error {
 	tags := post.Tags
-	// TODO トランザクションに不安が残る
-	return DB.Save(post).Model(post).Association("Tags").Replace(tags).Error
+	return Tx(func(db *gorm.DB) error {
+		return db.Save(post).Model(post).Association("Tags").Replace(tags).Error
+	})
 }
 
 // Delete 削除

@@ -47,6 +47,24 @@ func GormClose() {
 	DB = nil
 }
 
+// Tx トランザクションラッパー
+func Tx(fn func(*gorm.DB) error) error {
+	tx := DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+	if err := tx.Error; err != nil {
+		return err
+	}
+	if err := fn(tx); err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit().Error
+}
+
 // Model 基底モデル
 type Model struct {
 	ID        int       `json:"id" gorm:"primary_key"`
