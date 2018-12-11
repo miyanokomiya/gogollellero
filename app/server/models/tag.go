@@ -27,3 +27,8 @@ func CreateTagsIfNotExist(titles []string) (Tags, error) {
 	}
 	return tags, nil
 }
+
+// Index 一覧
+func (tags *Tags) Index(pagination *Pagination) error {
+	return paginate(DB.Where("title LIKE ?", "%"+pagination.Keyword+"%"), pagination).Find(tags).Error
+}

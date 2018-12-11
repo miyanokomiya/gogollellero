@@ -77,6 +77,7 @@ type Pagination struct {
 	Page    int
 	Limit   int
 	OrderBy string
+	Keyword string
 }
 
 func paginate(db *gorm.DB, pagination *Pagination) *gorm.DB {

@@ -45,3 +45,15 @@ func TestCreateIfNotExistTags(t *testing.T) {
 		t.Fatal("failed update", tags)
 	}
 }
+
+func TestIndexTag(t *testing.T) {
+	tagListWrapper(12, func(_ Tags) {
+		tags := Tags{}
+		tags.Index(&Pagination{
+			Keyword: "1",
+		})
+		if len(tags) != 3 {
+			t.Fatal("failed test", tags)
+		}
+	})
+}
