@@ -9,7 +9,7 @@ import (
 	"github.com/miyanokomiya/gogollellero/app/server/models"
 )
 
-// PostsHandler ユーザーハンドラのインタフェース
+// PostsHandler ポストハンドラのインタフェース
 type PostsHandler interface {
 	Index(c *gin.Context)
 	Show(c *gin.Context)

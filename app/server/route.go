@@ -11,12 +11,14 @@ func RouteV1(app *gin.Engine) {
 	authHandler := handlers.NewAuthHandler()
 	usersHandler := handlers.NewUsersHandler()
 	postsHandler := handlers.NewPostsHandler()
+	tagsHandler := handlers.NewTagsHandler()
 
 	app.Use(middlewares.CORSMiddleware())
 	app.POST("/login", authHandler.Login)
 	app.DELETE("/logout", authHandler.Logout)
 
 	app.POST("/users", usersHandler.Create)
+	app.GET("/tags", tagsHandler.Index)
 
 	private := app.Group("/private")
 	private.Use(middlewares.AuthRequired())

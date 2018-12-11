@@ -22,10 +22,12 @@ func getPagination(c *gin.Context) *models.Pagination {
 		limit = 50
 	}
 	orderBy := c.Query("orderBy")
+	keyword := c.Query("keyword")
 	return &models.Pagination{
 		Page:    page,
 		Limit:   limit,
 		OrderBy: orderBy,
+		Keyword: keyword,
 	}
 }
 
