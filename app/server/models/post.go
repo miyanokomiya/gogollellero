@@ -25,6 +25,7 @@ type Posts []Post
 type PostPagination struct {
 	Pagination
 	UserID int
+	Tag    string
 }
 
 // BeforeSave バリデーション
@@ -62,12 +63,19 @@ func (post *Post) Delete() error {
 func (posts *Posts) Index(pagination *PostPagination) error {
 	db := DB
 	if pagination != nil {
+		db = paginate(db, &pagination.Pagination)
 		if pagination.UserID != 0 {
 			db = db.Where("user_id = ?", pagination.UserID)
 		}
-		db = paginate(db, &pagination.Pagination)
+		if pagination.Tag != "" {
+			db = db.Joins("INNER JOIN post_tags ON post_tags.post_id = posts.id")
+			db = db.Joins("INNER JOIN tags ON post_tags.tag_id = tags.id AND tags.title = ?", pagination.Tag)
+		}
+		db = db.Preload("Tags")
+	} else {
+		db = db.Preload("Tags")
 	}
-	return db.Preload("Tags").Find(posts).Error
+	return db.Find(posts).Error
 }
 
 // BatchDeletePost 一覧削除

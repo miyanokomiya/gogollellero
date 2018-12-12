@@ -229,6 +229,42 @@ func TestIndexPostInUser(t *testing.T) {
 	}
 }
 
+func TestIndexPostWithTag(t *testing.T) {
+	GormOpen()
+	user1 := User{Name: "user1", Password: "password"}
+	DB.Create(&user1)
+	defer DB.Delete(&user1)
+	for i := 0; i < 10; i++ {
+		tag := Tag{Title: fmt.Sprintf("tag_%d", i)}
+		DB.Create(&tag)
+		defer DB.Delete(&tag)
+		tags := []Tag{tag}
+		post := Post{
+			UserID:   user1.ID,
+			Title:    fmt.Sprintf("title_%d", i),
+			Problem:  "problem",
+			Solution: "solution",
+			Lesson:   "lesson",
+			Tags:     tags,
+		}
+		DB.Create(&post)
+		defer DB.Delete(&post)
+	}
+
+	posts := Posts{}
+	if err := posts.Index(&PostPagination{
+		Tag: "tag_2",
+	}); err != nil {
+		t.Fatal("failed", err)
+	}
+	if len(posts) != 1 {
+		t.Fatal("failed", posts)
+	}
+	if posts[0].Tags[0].Title != "tag_2" {
+		t.Fatal("failed", posts)
+	}
+}
+
 func TestBatchDeletePost(t *testing.T) {
 	postListWrapper(3, func(created Posts) {
 		BatchDeletePost([]int{created[0].ID, created[1].ID, created[2].ID})
