@@ -1,5 +1,9 @@
 package models
 
+import (
+	"github.com/jinzhu/gorm"
+)
+
 // Tag タグ
 type Tag struct {
 	Model
@@ -28,7 +32,21 @@ func CreateTagsIfNotExist(titles []string) (Tags, error) {
 	return tags, nil
 }
 
+func tagsWhere(db *gorm.DB, keyword string) *gorm.DB {
+	if keyword != "" {
+		db = DB.Where("title LIKE ?", "%"+keyword+"%")
+	}
+	return db
+}
+
 // Index 一覧
 func (tags *Tags) Index(pagination *Pagination) error {
-	return paginate(DB.Where("title LIKE ?", "%"+pagination.Keyword+"%"), pagination).Find(tags).Error
+	return paginate(tagsWhere(DB, pagination.Keyword), pagination).Find(tags).Error
+}
+
+// IndexOfUser 一覧 ユーザー指定
+func IndexOfUser(userID int) (Tags, error) {
+	var tags Tags
+	err := DB.Raw("SELECT tags.* FROM post_tags LEFT JOIN tags ON post_tags.tag_id = tags.id LEFT JOIN posts ON posts.id = post_tags.post_id WHERE posts.user_id = ? GROUP BY tags.title", userID).Scan(&tags).Error
+	return tags, err
 }
