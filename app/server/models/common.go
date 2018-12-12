@@ -114,5 +114,5 @@ func readConfig() string {
 	}
 	conn := t[os.Getenv("GO_ENV")].(map[interface{}]interface{})
 	protocol := t["protocol"].(string)
-	return conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8&parseTime=True"
+	return conn["user"].(string) + ":" + conn["password"].(string) + "@" + protocol + "/" + conn["db"].(string) + "?charset=utf8mb4&parseTime=True"
 }

@@ -8,13 +8,13 @@ import (
 
 func TestCreate(t *testing.T) {
 	GormOpen()
-	user := User{Name: "test_abcd", Password: "abcdabcd"}
+	user := User{Name: "test😀_abcd", Password: "abcdabcd"}
 	err := user.Create()
 	if err != nil {
 		t.Fatal("failed test", err)
 	}
 	defer DB.Delete(&user)
-	if user.Name != "test_abcd" {
+	if user.Name != "test😀_abcd" {
 		t.Fatal("failed test", user)
 	}
 	if user.ID == 0 {
@@ -26,7 +26,7 @@ func TestRead(t *testing.T) {
 	GormOpen()
 	user := User{Name: "test_abcd", Password: "abcdabcd"}
 	DB.Create(&user)
-	user2 := User{Name: "test_dddd", Password: "abcdabcd"}
+	user2 := User{Name: "test_😀dddd", Password: "abcdabcd"}
 	DB.Create(&user2)
 	defer DB.Delete(&user)
 	defer DB.Delete(&user2)
@@ -34,7 +34,7 @@ func TestRead(t *testing.T) {
 	read := User{}
 	read.ID = user2.ID
 	read.Read()
-	if read.Name != "test_dddd" {
+	if read.Name != "test_😀dddd" {
 		t.Fatal("failed read", read)
 	}
 	// name検索
