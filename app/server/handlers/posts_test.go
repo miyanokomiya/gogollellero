@@ -49,6 +49,40 @@ func TestPostsHandlerIndexSuccess(t *testing.T) {
 	})
 }
 
+func TestPostsHandlerIndexSuccessWithTag(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		for i := 0; i < 10; i++ {
+			post := models.Post{
+				UserID: user.ID,
+				Title:  fmt.Sprintf("title_%d", i),
+				Tags:   []models.Tag{models.Tag{Title: fmt.Sprintf("tag_%d", i)}},
+			}
+			post.Create()
+			defer post.Delete()
+		}
+
+		login(h.eng, user.ID)
+
+		h.eng.GET("/posts", postsHandlers.Index)
+		req := httptest.NewRequest("GET", "/posts?tag=tag_1", nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+		var resPosts models.Posts
+		if err := json.Unmarshal(h.rec.Body.Bytes(), &resPosts); err != nil {
+			t.Fatal("falied", h.rec)
+		}
+		if len(resPosts) != 1 {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
 func TestPostsHandlerIndex_NotLogin(t *testing.T) {
 	readyServe(func(h *handlerTest) {
 		h.eng.GET("/posts", postsHandlers.Index)

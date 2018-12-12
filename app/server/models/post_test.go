@@ -234,11 +234,22 @@ func TestIndexPostWithTag(t *testing.T) {
 	user1 := User{Name: "user1", Password: "password"}
 	DB.Create(&user1)
 	defer DB.Delete(&user1)
-	for i := 0; i < 10; i++ {
-		tag := Tag{Title: fmt.Sprintf("tag_%d", i)}
-		DB.Create(&tag)
-		defer DB.Delete(&tag)
-		tags := []Tag{tag}
+	for i := 0; i < 5; i++ {
+		post := Post{
+			UserID:   user1.ID,
+			Title:    fmt.Sprintf("title_%d", i),
+			Problem:  "problem",
+			Solution: "solution",
+			Lesson:   "lesson",
+		}
+		DB.Create(&post)
+		defer DB.Delete(&post)
+	}
+	tag := Tag{Title: "tag"}
+	DB.Create(&tag)
+	defer DB.Delete(&tag)
+	tags := []Tag{tag}
+	for i := 5; i < 10; i++ {
 		post := Post{
 			UserID:   user1.ID,
 			Title:    fmt.Sprintf("title_%d", i),
@@ -253,14 +264,14 @@ func TestIndexPostWithTag(t *testing.T) {
 
 	posts := Posts{}
 	if err := posts.Index(&PostPagination{
-		Tag: "tag_2",
+		Tag: "tag",
 	}); err != nil {
 		t.Fatal("failed", err)
 	}
-	if len(posts) != 1 {
+	if len(posts) != 5 {
 		t.Fatal("failed", posts)
 	}
-	if posts[0].Tags[0].Title != "tag_2" {
+	if posts[0].Tags[0].Title != "tag" {
 		t.Fatal("failed", posts)
 	}
 }
