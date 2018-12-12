@@ -34,6 +34,6 @@ func RouteV1(app *gin.Engine) {
 		private.PATCH("/posts/:id", postsHandler.Update)
 		private.DELETE("/posts/:id", postsHandler.Delete)
 
-		private.GET("/posts", tagsHandler.IndexOfMine)
+		private.GET("/tags", tagsHandler.IndexOfMine)
 	}
 }

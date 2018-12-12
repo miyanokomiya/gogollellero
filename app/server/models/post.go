@@ -21,6 +21,12 @@ type Post struct {
 // Posts ポスト一覧
 type Posts []Post
 
+// PostPagination ポストページネーション条件
+type PostPagination struct {
+	Pagination
+	UserID int
+}
+
 // BeforeSave バリデーション
 func (post *Post) BeforeSave() error {
 	return GetValidator().Struct(post)
@@ -53,13 +59,15 @@ func (post *Post) Delete() error {
 }
 
 // Index 一覧
-func (posts *Posts) Index(pagination *Pagination) error {
-	return paginate(DB, pagination).Preload("Tags").Find(posts).Error
-}
-
-// IndexInUser 一覧
-func (posts *Posts) IndexInUser(pagination *Pagination, userID int) error {
-	return paginate(DB.Where("user_id = ?", userID), pagination).Preload("Tags").Find(posts).Error
+func (posts *Posts) Index(pagination *PostPagination) error {
+	db := DB
+	if pagination != nil {
+		if pagination.UserID != 0 {
+			db = db.Where("user_id = ?", pagination.UserID)
+		}
+		db = paginate(db, &pagination.Pagination)
+	}
+	return db.Preload("Tags").Find(posts).Error
 }
 
 // BatchDeletePost 一覧削除

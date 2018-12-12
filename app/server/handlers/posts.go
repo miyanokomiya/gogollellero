@@ -33,7 +33,10 @@ func (h *postsHandler) Index(c *gin.Context) {
 	}
 	pagenation := getPagination(c)
 	posts := models.Posts{}
-	if err := posts.IndexInUser(pagenation, user.ID); err != nil {
+	if err := posts.Index(&models.PostPagination{
+		Pagination: *pagenation,
+		UserID:     user.ID,
+	}); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
 			Key:     "internal_server_error",
 			Message: "internal server error",

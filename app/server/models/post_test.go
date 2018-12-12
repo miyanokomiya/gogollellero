@@ -210,11 +210,15 @@ func TestIndexPostInUser(t *testing.T) {
 	}
 
 	posts := Posts{}
-	if err := posts.IndexInUser(&Pagination{
-		Page:    2,
-		Limit:   3,
-		OrderBy: "id",
-	}, user2.ID); err != nil {
+	if err := posts.Index(&PostPagination{
+		Pagination: Pagination{
+			Page:    2,
+			Limit:   3,
+			OrderBy: "id",
+			Keyword: "",
+		},
+		UserID: user2.ID,
+	}); err != nil {
 		t.Fatal("failed")
 	}
 	if len(posts) != 3 {
