@@ -55,7 +55,7 @@ func TestPostsHandlerIndex_NotLogin(t *testing.T) {
 		req := httptest.NewRequest("GET", "/posts?page=2&limit=3&orderBy=title", nil)
 		h.eng.ServeHTTP(h.rec, req)
 
-		if http.StatusOK == h.rec.Code {
+		if http.StatusUnauthorized != h.rec.Code {
 			t.Fatal("falied", h.rec)
 		}
 	})

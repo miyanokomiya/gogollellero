@@ -47,7 +47,7 @@ func GetCurrentUser(c *gin.Context) *models.User {
 		}
 	}
 
-	c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+	c.AbortWithStatusJSON(http.StatusUnauthorized, responses.Error{
 		Key:     "invalid_auth",
 		Message: "invalid auth",
 	})

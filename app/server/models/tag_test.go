@@ -60,7 +60,8 @@ func TestIndexTag(t *testing.T) {
 
 func TestIndexTagOfUser(t *testing.T) {
 	postListWrapper(3, func(posts Posts) {
-		tags, err := IndexOfUser(posts[0].UserID)
+		var tags Tags
+		err := tags.IndexOfUser(posts[0].UserID)
 		if err != nil {
 			t.Fatal("failed test", err)
 		}
