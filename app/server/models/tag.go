@@ -47,6 +47,14 @@ func (tags *Tags) Index(pagination *Pagination) error {
 // IndexOfUser 一覧 ユーザー指定
 func IndexOfUser(userID int) (Tags, error) {
 	var tags Tags
-	err := DB.Raw("SELECT tags.* FROM post_tags LEFT JOIN tags ON post_tags.tag_id = tags.id LEFT JOIN posts ON posts.id = post_tags.post_id WHERE posts.user_id = ? GROUP BY tags.title", userID).Scan(&tags).Error
+	err := DB.Raw(`
+SELECT tags.*
+FROM posts
+  INNER JOIN post_tags
+    ON posts.id = post_tags.post_id
+    AND posts.user_id = ? 
+  INNER JOIN tags ON post_tags.tag_id = tags.id
+GROUP BY tags.id
+	`, userID).Scan(&tags).Error
 	return tags, err
 }
