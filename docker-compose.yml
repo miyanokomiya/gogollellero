@@ -9,7 +9,6 @@ services:
       - '.:/go/src/github.com/miyanokomiya/gogollellero'
     environment:
       PORT: 8080
-      CLIENT_HOST: 'http://localhost:3000' # cors対応用
     ports:
       - '8080:8080'
     command: bash -c "dep ensure && GO_ENV=development gin -p 8080"
