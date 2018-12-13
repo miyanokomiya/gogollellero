@@ -1,5 +1,5 @@
 driver: mysql
-protocol: tcp(gogollellero_db:3306)
+protocol: tcp(db:3306)
 development:
   user: miyanokomiya
   password: miyanokomiya
