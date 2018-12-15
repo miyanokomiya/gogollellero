@@ -25,7 +25,7 @@ func TestCreatePost(t *testing.T) {
 	if err := post.Create(); err != nil {
 		t.Fatal("failed test", err)
 	}
-	defer DB.Delete(&post)
+	defer DB.Delete(post.PostParent)
 	if post.Title != "title" {
 		t.Fatal("failed test", post)
 	}
@@ -51,13 +51,19 @@ func TestReadPost(t *testing.T) {
 		Solution: "solution",
 		Lesson:   "lesson",
 	}
-	DB.Create(&post)
-	defer DB.Delete(&post)
+	if err := post.Create(); err != nil {
+		t.Fatal("failed test", err)
+	}
+	defer DB.Delete(post.PostParent)
 	// id検索
 	read := Post{}
 	read.ID = post.ID
 	read.Read()
 	if read.Title != "title" {
+		t.Fatal("failed read", read)
+	}
+	// PostParent付属
+	if read.PostParent == nil || read.PostParent.ID == 0 {
 		t.Fatal("failed read", read)
 	}
 	// 検索エラー
@@ -89,8 +95,10 @@ func TestUpdatePost(t *testing.T) {
 		Lesson:   "lesson",
 		Tags:     tags,
 	}
-	DB.Create(&post)
-	defer DB.Delete(&post)
+	if err := post.Create(); err != nil {
+		t.Fatal("failed test", err)
+	}
+	defer DB.Delete(post.PostParent)
 	created := Post{}
 	DB.First(&created, "ID = ?", post.ID)
 
@@ -141,8 +149,10 @@ func TestUpdatePost2(t *testing.T) {
 		Solution: "solution",
 		Lesson:   "lesson",
 	}
-	DB.Create(&post)
-	defer DB.Delete(&post)
+	if err := post.Create(); err != nil {
+		t.Fatal("failed test", err)
+	}
+	defer DB.Delete(post.PostParent)
 	created := Post{}
 	DB.First(&created, "ID = ?", post.ID)
 
@@ -194,8 +204,10 @@ func TestIndexPostInUser(t *testing.T) {
 			Solution: "solution",
 			Lesson:   "lesson",
 		}
-		DB.Create(&post)
-		defer DB.Delete(&post)
+		if err := post.Create(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		defer DB.Delete(post.PostParent)
 	}
 	for i := 0; i < 10; i++ {
 		post := Post{
@@ -205,8 +217,10 @@ func TestIndexPostInUser(t *testing.T) {
 			Solution: "solution",
 			Lesson:   "lesson",
 		}
-		DB.Create(&post)
-		defer DB.Delete(&post)
+		if err := post.Create(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		defer DB.Delete(post.PostParent)
 	}
 
 	posts := Posts{}
@@ -242,8 +256,10 @@ func TestIndexPostWithTag(t *testing.T) {
 			Solution: "solution",
 			Lesson:   "lesson",
 		}
-		DB.Create(&post)
-		defer DB.Delete(&post)
+		if err := post.Create(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		defer DB.Delete(post.PostParent)
 	}
 	tag := Tag{Title: "tag"}
 	DB.Create(&tag)
@@ -258,8 +274,10 @@ func TestIndexPostWithTag(t *testing.T) {
 			Lesson:   "lesson",
 			Tags:     tags,
 		}
-		DB.Create(&post)
-		defer DB.Delete(&post)
+		if err := post.Create(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		defer DB.Delete(post.PostParent)
 	}
 
 	posts := Posts{}
