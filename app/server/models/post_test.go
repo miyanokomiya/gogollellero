@@ -188,6 +188,23 @@ func TestIndexPost(t *testing.T) {
 	})
 }
 
+func TestIndexPostWithType(t *testing.T) {
+	postListWrapper(3, func(_posts Posts) {
+		published := Post{Type: Published, Title: "published", UserID: _posts[0].UserID}
+		if err := published.Create(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		posts := Posts{}
+		posts.Index(&PostPagination{PostType: Published})
+		if len(posts) != 1 {
+			t.Fatal("failed test", len(posts))
+		}
+		if posts[0].Type != Published {
+			t.Fatal("failed test", posts[0])
+		}
+	})
+}
+
 func TestIndexPostInUser(t *testing.T) {
 	GormOpen()
 	user1 := User{Name: "user1", Password: "password"}
