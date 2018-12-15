@@ -108,7 +108,7 @@ func postListWrapper(count int, fn func(Posts)) {
 			Tags:     tags,
 		}
 		post.Create()
-		defer DB.Delete(post.PostParent)
+		defer post.Delete()
 		posts = append(posts, post)
 	}
 	fn(posts)

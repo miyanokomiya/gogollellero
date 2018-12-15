@@ -29,6 +29,8 @@ const (
 	Draft = 1
 	// Published 公開
 	Published = 2
+	// PublishedLog 公開ログ
+	PublishedLog = 3
 )
 
 // Posts ポスト一覧
@@ -49,6 +51,7 @@ func (post *Post) BeforeSave() error {
 
 // Create 作成
 func (post *Post) Create() error {
+	post.Type = Draft
 	return Tx(func(db *gorm.DB) error {
 		postParent := PostParent{}
 		if err := postParent.Create(); err != nil {
@@ -84,6 +87,34 @@ func (post *Post) Delete() error {
 		return DB.Delete(post.PostParent).Error
 	}
 	return DB.Delete(post).Error
+}
+
+// Publish 公開
+func (post *Post) Publish() (*Post, error) {
+	if post.Type != Draft {
+		return nil, errors.New("only draft can be published")
+	}
+	published := Post{
+		UserID:       post.UserID,
+		Title:        post.Title,
+		Problem:      post.Problem,
+		Solution:     post.Solution,
+		Lesson:       post.Lesson,
+		Type:         Published,
+		PostParentID: post.PostParentID,
+	}
+	if err := Tx(func(db *gorm.DB) error {
+		if err := db.Table("posts").Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Updates(map[string]interface{}{"type": PublishedLog}).Error; err != nil {
+			return err
+		}
+		if err := db.Create(&published).Error; err != nil {
+			return err
+		}
+		return db.Model(&published).Association("Tags").Replace(post.Tags).Error
+	}); err != nil {
+		return nil, err
+	}
+	return &published, nil
 }
 
 func filterType(db *gorm.DB, postType PostType) *gorm.DB {

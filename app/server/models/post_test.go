@@ -32,6 +32,9 @@ func TestCreatePost(t *testing.T) {
 	if post.ID == 0 {
 		t.Fatal("failed test", post)
 	}
+	if post.Type != Draft {
+		t.Fatal("failed test", post)
+	}
 }
 
 func TestReadPost(t *testing.T) {
@@ -175,6 +178,39 @@ func TestDeletePost(t *testing.T) {
 	})
 }
 
+func TestPublish(t *testing.T) {
+	postListWrapper(1, func(posts Posts) {
+		post := posts[0]
+		if published, err := post.Publish(); err != nil {
+			t.Fatal("failed delete", err)
+		} else {
+			if published.ID == post.ID {
+				t.Fatal("failed delete", published)
+			}
+		}
+		if published, err := post.Publish(); err != nil {
+			t.Fatal("failed delete", err)
+		} else {
+			if published.ID == 0 || published.ID == post.ID {
+				t.Fatal("failed delete", published)
+			}
+			var posts Posts
+			if err := DB.Where("post_parent_id = ?", published.PostParentID).Where("type = ?", Published).Find(&posts).Error; err != nil {
+				t.Fatal("failed delete", err)
+			}
+			if len(posts) != 1 {
+				t.Fatal("failed delete", posts)
+			}
+			if err := DB.Where("post_parent_id = ?", published.PostParentID).Where("type = ?", PublishedLog).Find(&posts).Error; err != nil {
+				t.Fatal("failed delete", err)
+			}
+			if len(posts) != 1 {
+				t.Fatal("failed delete", posts)
+			}
+		}
+	})
+}
+
 func TestIndexPost(t *testing.T) {
 	postListWrapper(3, func(_ Posts) {
 		posts := Posts{}
@@ -190,8 +226,11 @@ func TestIndexPost(t *testing.T) {
 
 func TestIndexPostWithType(t *testing.T) {
 	postListWrapper(3, func(_posts Posts) {
-		published := Post{Type: Published, Title: "published", UserID: _posts[0].UserID}
-		if err := published.Create(); err != nil {
+		draft := Post{Title: "published", UserID: _posts[0].UserID}
+		if err := draft.Create(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		if _, err := draft.Publish(); err != nil {
 			t.Fatal("failed test", err)
 		}
 		posts := Posts{}

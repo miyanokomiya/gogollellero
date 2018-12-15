@@ -32,16 +32,16 @@ func CreateTagsIfNotExist(titles []string) (Tags, error) {
 	return tags, nil
 }
 
-func tagsWhere(db *gorm.DB, keyword string) *gorm.DB {
-	if keyword != "" {
-		db = DB.Where("title LIKE ?", "%"+keyword+"%")
+func tagsWhere(db *gorm.DB, pagination *Pagination) *gorm.DB {
+	if pagination != nil && pagination.Keyword != "" {
+		db = DB.Where("title LIKE ?", "%"+pagination.Keyword+"%")
 	}
 	return db
 }
 
 // Index 一覧
 func (tags *Tags) Index(pagination *Pagination) error {
-	return paginate(tagsWhere(DB, pagination.Keyword), pagination).Find(tags).Error
+	return paginate(tagsWhere(DB, pagination), pagination).Find(tags).Error
 }
 
 // IndexOfUser 一覧 ユーザー指定
