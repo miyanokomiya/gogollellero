@@ -100,6 +100,7 @@ func (post *Post) Publish() (*Post, error) {
 		Problem:      post.Problem,
 		Solution:     post.Solution,
 		Lesson:       post.Lesson,
+		Tags:         post.Tags,
 		Type:         Published,
 		PostParentID: post.PostParentID,
 	}
@@ -107,14 +108,16 @@ func (post *Post) Publish() (*Post, error) {
 		if err := db.Table("posts").Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Updates(map[string]interface{}{"type": PublishedLog}).Error; err != nil {
 			return err
 		}
-		if err := db.Create(&published).Error; err != nil {
-			return err
-		}
-		return db.Model(&published).Association("Tags").Replace(post.Tags).Error
+		return db.Create(&published).Error
 	}); err != nil {
 		return nil, err
 	}
 	return &published, nil
+}
+
+// Unpublish 公開中止
+func (post *Post) Unpublish() error {
+	return DB.Table("posts").Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Updates(map[string]interface{}{"type": PublishedLog}).Error
 }
 
 func filterType(db *gorm.DB, postType PostType) *gorm.DB {

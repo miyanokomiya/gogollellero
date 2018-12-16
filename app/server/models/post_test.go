@@ -182,31 +182,58 @@ func TestPublish(t *testing.T) {
 	postListWrapper(1, func(posts Posts) {
 		post := posts[0]
 		if published, err := post.Publish(); err != nil {
-			t.Fatal("failed delete", err)
+			t.Fatal("failed publish", err)
 		} else {
 			if published.ID == post.ID {
-				t.Fatal("failed delete", published)
+				t.Fatal("failed publish", published)
 			}
 		}
 		if published, err := post.Publish(); err != nil {
-			t.Fatal("failed delete", err)
+			t.Fatal("failed publish", err)
 		} else {
 			if published.ID == 0 || published.ID == post.ID {
-				t.Fatal("failed delete", published)
+				t.Fatal("failed publish", published)
 			}
 			var posts Posts
-			if err := DB.Where("post_parent_id = ?", published.PostParentID).Where("type = ?", Published).Find(&posts).Error; err != nil {
-				t.Fatal("failed delete", err)
+			if err := DB.Where("post_parent_id = ?", published.PostParentID).Where("type = ?", Published).Preload("Tags").Find(&posts).Error; err != nil {
+				t.Fatal("failed publish", err)
 			}
 			if len(posts) != 1 {
-				t.Fatal("failed delete", posts)
+				t.Fatal("failed publish", posts)
+			}
+			if len(posts[0].Tags) != 1 {
+				t.Fatal("failed publish", posts[0])
 			}
 			if err := DB.Where("post_parent_id = ?", published.PostParentID).Where("type = ?", PublishedLog).Find(&posts).Error; err != nil {
-				t.Fatal("failed delete", err)
+				t.Fatal("failed publish", err)
 			}
 			if len(posts) != 1 {
-				t.Fatal("failed delete", posts)
+				t.Fatal("failed publish", posts)
 			}
+		}
+	})
+}
+
+func TestUnpublish(t *testing.T) {
+	postListWrapper(1, func(posts Posts) {
+		post := posts[0]
+		if _, err := post.Publish(); err != nil {
+			t.Fatal("failed publish", err)
+		}
+		if err := post.Unpublish(); err != nil {
+			t.Fatal("failed publish", err)
+		}
+		if err := DB.Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Find(&posts).Error; err != nil {
+			t.Fatal("failed publish", err)
+		}
+		if len(posts) != 0 {
+			t.Fatal("failed publish", posts)
+		}
+		if err := DB.Where("post_parent_id = ?", post.PostParentID).Where("type = ?", PublishedLog).Find(&posts).Error; err != nil {
+			t.Fatal("failed publish", err)
+		}
+		if len(posts) != 1 {
+			t.Fatal("failed publish", posts)
 		}
 	})
 }
