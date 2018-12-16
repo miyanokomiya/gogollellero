@@ -19,6 +19,7 @@ func RouteV1(app *gin.Engine) {
 
 	app.POST("/users", usersHandler.Create)
 	app.GET("/tags", tagsHandler.Index)
+	app.GET("/posts/:id", postsHandler.ShowPublished)
 
 	private := app.Group("/private")
 	private.Use(middlewares.AuthRequired())
@@ -35,6 +36,7 @@ func RouteV1(app *gin.Engine) {
 		private.DELETE("/posts/:id", postsHandler.Delete)
 		private.PATCH("/posts/:id/publish", postsHandler.Publish)
 		private.PATCH("/posts/:id/unpublish", postsHandler.Unpublish)
+		private.GET("/posts/:id/draft", postsHandler.ShowDraft)
 
 		private.GET("/tags", tagsHandler.IndexOfMine)
 	}

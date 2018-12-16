@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/miyanokomiya/gogollellero/app/server/responses"
@@ -13,6 +14,8 @@ import (
 type PostsHandler interface {
 	Index(c *gin.Context)
 	Show(c *gin.Context)
+	ShowDraft(c *gin.Context)
+	ShowPublished(c *gin.Context)
 	Create(c *gin.Context)
 	Update(c *gin.Context)
 	Publish(c *gin.Context)
@@ -62,6 +65,36 @@ func (h *postsHandler) Show(c *gin.Context) {
 	}
 
 	post := getPost(c, id)
+	if post == nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
+}
+
+// ShowDraft 詳細
+func (h *postsHandler) ShowDraft(c *gin.Context) {
+	id := parseID(c)
+	if id == 0 {
+		return
+	}
+
+	post := getPostFromParent(c, id, models.Draft)
+	if post == nil {
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
+}
+
+// ShowPublished 詳細
+func (h *postsHandler) ShowPublished(c *gin.Context) {
+	id := parseID(c)
+	if id == 0 {
+		return
+	}
+
+	post := getPostFromParent(c, id, models.Published)
 	if post == nil {
 		return
 	}
@@ -245,6 +278,7 @@ func getPost(c *gin.Context, id int) *models.Post {
 	post := models.Post{}
 	post.ID = id
 	if err := post.Read(); err != nil {
+		log.Println(err)
 		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
 			Key:     "not_found_post",
 			Message: "not found post",
@@ -252,4 +286,19 @@ func getPost(c *gin.Context, id int) *models.Post {
 		return nil
 	}
 	return &post
+}
+
+func getPostFromParent(c *gin.Context, id int, postType models.PostType) *models.Post {
+	postParent := models.PostParent{}
+	postParent.ID = id
+	post, err := postParent.GetChild(postType)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatusJSON(http.StatusNotFound, responses.Error{
+			Key:     "not_found_post",
+			Message: "not found post",
+		})
+		return nil
+	}
+	return post
 }

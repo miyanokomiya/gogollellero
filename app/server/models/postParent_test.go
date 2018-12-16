@@ -38,3 +38,36 @@ func TestDeletePostParent(t *testing.T) {
 		t.Fatal("failed delete", deleted)
 	}
 }
+
+func TestGetChildDraft(t *testing.T) {
+	postListWrapper(3, func(posts Posts) {
+		post, err := posts[0].PostParent.GetChild(Draft)
+		if err != nil {
+			t.Fatal("failed test", err)
+		}
+		if post == nil {
+			t.Fatal("failed test")
+		}
+		if post.PostParent == nil {
+			t.Fatal("failed test", post)
+		}
+	})
+}
+
+func TestGetChildPublished(t *testing.T) {
+	postListWrapper(3, func(posts Posts) {
+		if _, err := posts[0].Publish(); err != nil {
+			t.Fatal("failed test", err)
+		}
+		post, err := posts[0].PostParent.GetChild(Published)
+		if err != nil {
+			t.Fatal("failed test", err)
+		}
+		if post == nil {
+			t.Fatal("failed test")
+		}
+		if post.PostParent == nil {
+			t.Fatal("failed test", post)
+		}
+	})
+}

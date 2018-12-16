@@ -135,7 +135,10 @@ func TestPostsHandlerIndex_NotLogin(t *testing.T) {
 
 func TestPostsHandlerShow_Success(t *testing.T) {
 	readyServe(func(h *handlerTest) {
-		post := models.Post{Title: "title"}
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{Title: "title", UserID: user.ID}
 		post.Create()
 		defer post.Delete()
 		h.eng.GET("/post/:id", postsHandlers.Show)
@@ -155,6 +158,73 @@ func TestPostsHandlerShow_NotFound(t *testing.T) {
 		h.eng.ServeHTTP(h.rec, req)
 
 		if http.StatusOK == h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerShowDraft_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{Title: "title", UserID: user.ID}
+		post.Create()
+		defer post.Delete()
+		h.eng.GET("/post/:id", postsHandlers.ShowDraft)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/post/%d", post.PostParent.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerShowPublished_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{Title: "title", UserID: user.ID}
+		post.Create()
+		post.Publish()
+		defer post.Delete()
+		h.eng.GET("/post/:id", postsHandlers.ShowPublished)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/post/%d", post.PostParent.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerShowDraft_NotFound(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		h.eng.GET("/post/:id", postsHandlers.ShowDraft)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/post/%d", 1), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusNotFound != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerShowPublished_NotFound(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{Title: "title", UserID: user.ID}
+		post.Create()
+		defer post.Delete()
+		h.eng.GET("/post/:id", postsHandlers.ShowPublished)
+		req := httptest.NewRequest("GET", fmt.Sprintf("/post/%d", post.PostParent.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusNotFound != h.rec.Code {
 			t.Fatal("falied", h.rec)
 		}
 	})

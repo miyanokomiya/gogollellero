@@ -29,3 +29,15 @@ func (postParent *PostParent) Create() error {
 func (postParent *PostParent) Delete() error {
 	return DB.Delete(postParent).Error
 }
+
+// GetChild 子供ポスト取得
+func (postParent *PostParent) GetChild(postType PostType) (post *Post, err error) {
+	post = &Post{}
+	if err = DB.Where("post_parent_id = ? AND type = ?", postParent.ID, postType).First(post).Error; err != nil {
+		return nil, err
+	}
+	if err = post.Read(); err != nil {
+		return nil, err
+	}
+	return post, err
+}
