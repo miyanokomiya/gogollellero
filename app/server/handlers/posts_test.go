@@ -213,6 +213,59 @@ func TestPostsHandlerUpdate_NotFound(t *testing.T) {
 	})
 }
 
+func TestPostsHandlerPublish_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{
+			Title:  "titile",
+			UserID: user.ID,
+		}
+		post.Create()
+		defer post.Delete()
+		login(h.eng, user.ID)
+
+		h.eng.PATCH("/posts/:id", postsHandlers.Publish)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", post.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+		var published models.Post
+		if err := json.Unmarshal(h.rec.Body.Bytes(), &published); err != nil {
+			t.Fatal("falied", h.rec)
+		}
+		if published.Type != models.Published {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
+func TestPostsHandlerUnpublish_Success(t *testing.T) {
+	readyServe(func(h *handlerTest) {
+		user := models.User{Name: "user", Password: "password"}
+		user.Create()
+		defer user.Delete()
+		post := models.Post{
+			Title:  "titile",
+			UserID: user.ID,
+		}
+		post.Create()
+		defer post.Delete()
+		login(h.eng, user.ID)
+
+		h.eng.PATCH("/posts/:id", postsHandlers.Unpublish)
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/posts/%d", post.ID), nil)
+		h.eng.ServeHTTP(h.rec, req)
+
+		if http.StatusOK != h.rec.Code {
+			t.Fatal("falied", h.rec)
+		}
+	})
+}
+
 func TestPostsHandlerDelete_Success(t *testing.T) {
 	readyServe(func(h *handlerTest) {
 		user := models.User{Name: "user", Password: "password"}

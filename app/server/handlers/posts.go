@@ -15,6 +15,8 @@ type PostsHandler interface {
 	Show(c *gin.Context)
 	Create(c *gin.Context)
 	Update(c *gin.Context)
+	Publish(c *gin.Context)
+	Unpublish(c *gin.Context)
 	Delete(c *gin.Context)
 }
 
@@ -113,7 +115,7 @@ type PostUpdateJSON struct {
 	Tags     []string `json:"tags"`
 }
 
-// Update 作成
+// Update 更新
 func (h *postsHandler) Update(c *gin.Context) {
 	id := parseID(c)
 	if id == 0 {
@@ -166,6 +168,50 @@ func (h *postsHandler) Update(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &post)
+}
+
+// Publish 公開
+func (h *postsHandler) Publish(c *gin.Context) {
+	id := parseID(c)
+	if id == 0 {
+		return
+	}
+
+	post := getPost(c, id)
+	if post == nil {
+		return
+	}
+
+	if published, err := post.Publish(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "failed_publish_post",
+			Message: err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, &published)
+	}
+}
+
+// Unpublish 公開中止
+func (h *postsHandler) Unpublish(c *gin.Context) {
+	id := parseID(c)
+	if id == 0 {
+		return
+	}
+
+	post := getPost(c, id)
+	if post == nil {
+		return
+	}
+
+	if err := post.Unpublish(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, responses.Error{
+			Key:     "failed_publish_post",
+			Message: err.Error(),
+		})
+	} else {
+		c.JSON(http.StatusOK, nil)
+	}
 }
 
 // Delete 削除
