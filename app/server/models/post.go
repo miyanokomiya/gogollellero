@@ -53,7 +53,7 @@ func (post *Post) BeforeSave() error {
 func (post *Post) Create() error {
 	post.Type = Draft
 	return Tx(func(db *gorm.DB) error {
-		postParent := PostParent{}
+		postParent := PostParent{Status: PostParentDraft}
 		if err := postParent.Create(); err != nil {
 			return err
 		}
@@ -111,7 +111,11 @@ func (post *Post) Publish() (*Post, error) {
 		if err := db.Table("posts").Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Updates(map[string]interface{}{"type": PublishedLog}).Error; err != nil {
 			return err
 		}
-		return db.Create(&published).Error
+		if err := db.Create(&published).Error; err != nil {
+			return err
+		}
+		post.PostParent.Status = PostParentPublished
+		return db.Save(post.PostParent).Error
 	}); err != nil {
 		return nil, err
 	}
@@ -120,14 +124,22 @@ func (post *Post) Publish() (*Post, error) {
 
 // Unpublish 公開中止
 func (post *Post) Unpublish() error {
-	return DB.Table("posts").Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Updates(map[string]interface{}{"type": PublishedLog}).Error
+	return Tx(func(db *gorm.DB) error {
+		if err := db.Table("posts").Where("post_parent_id = ?", post.PostParentID).Where("type = ?", Published).Updates(map[string]interface{}{"type": PublishedLog}).Error; err != nil {
+			return err
+		}
+		post.PostParent.Status = PostParentDraft
+		return db.Save(post.PostParent).Error
+	})
 }
 
 func filterType(db *gorm.DB, postType PostType) *gorm.DB {
 	if postType == Draft {
-		return db.Where("type = 1")
+		// 下書きしかポストが存在しない
+		return db.Joins("INNER JOIN post_parents ON post_parents.id = posts.post_parent_id AND post_parents.status = 1 AND posts.type = 1")
 	} else if postType == Published {
-		return db.Where("type = 2")
+		// 公開ポストが存在する
+		return db.Joins("INNER JOIN post_parents ON post_parents.id = posts.post_parent_id AND post_parents.status = 2 AND posts.type = 2")
 	}
 	return db
 }
