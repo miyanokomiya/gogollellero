@@ -75,6 +75,9 @@ func (post *Post) Read() error {
 
 // Update 更新
 func (post *Post) Update() error {
+	if post.Type != Draft {
+		return errors.New("only draft can be updated")
+	}
 	tags := post.Tags
 	return Tx(func(db *gorm.DB) error {
 		return db.Save(post).Model(post).Association("Tags").Replace(tags).Error

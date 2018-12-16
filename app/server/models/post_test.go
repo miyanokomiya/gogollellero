@@ -166,6 +166,34 @@ func TestUpdatePost2(t *testing.T) {
 	}
 }
 
+func TestUpdatePostOnlyDraft(t *testing.T) {
+	GormOpen()
+	user := User{
+		Name:     "username",
+		Password: "password",
+	}
+	if err := user.Create(); err != nil {
+		t.Fatal("failed test", err)
+	}
+	defer user.Delete()
+	post := Post{
+		UserID: user.ID,
+		Title:  "title",
+	}
+	if err := post.Create(); err != nil {
+		t.Fatal("failed test", err)
+	}
+	defer DB.Delete(post.PostParent)
+	created := Post{}
+	DB.First(&created, "ID = ?", post.ID)
+
+	// 更新
+	created.Type = Published
+	if err := created.Update(); err == nil {
+		t.Fatal("failed update", created)
+	}
+}
+
 func TestDeletePost(t *testing.T) {
 	postListWrapper(1, func(posts Posts) {
 		post := posts[0]
