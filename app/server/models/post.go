@@ -26,11 +26,11 @@ type PostType int
 
 const (
 	// Draft 下書き
-	Draft = 1
+	Draft PostType = 1
 	// Published 公開
-	Published = 2
+	Published PostType = 2
 	// PublishedLog 公開ログ
-	PublishedLog = 3
+	PublishedLog PostType = 3
 )
 
 // Posts ポスト一覧

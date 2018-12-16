@@ -34,11 +34,16 @@ func (h *postsHandler) Index(c *gin.Context) {
 		return
 	}
 	pagenation := getPagination(c)
+	postType := models.Draft
+	if c.Query("type") == "published" {
+		postType = models.Published
+	}
 	posts := models.Posts{}
 	if err := posts.Index(&models.PostPagination{
 		Pagination: *pagenation,
 		UserID:     user.ID,
 		Tag:        c.Query("tag"),
+		PostType:   postType,
 	}); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, responses.Error{
 			Key:     "internal_server_error",
