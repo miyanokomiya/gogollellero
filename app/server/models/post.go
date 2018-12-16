@@ -115,6 +115,7 @@ func (post *Post) Publish() (*Post, error) {
 			return err
 		}
 		post.PostParent.Status = PostParentPublished
+		published.PostParent = post.PostParent
 		return db.Save(post.PostParent).Error
 	}); err != nil {
 		return nil, err
